@@ -12,21 +12,73 @@ import SceneKit
 
 extension Array {
     
-    public init(of buffer: MTLBuffer ) {
+    /// MTLBufferでArrayを初期化する
+    public init(_ buffer: MTLBuffer ) {
         let pointer = buffer.contents().bindMemory( to: Element.self, capacity: buffer.length )
         let bufferPointer = UnsafeBufferPointer<Element>( start: pointer, count: buffer.length / MemoryLayout<Element>.stride )
         self.init( bufferPointer )
     }
     
-    public func buffer( with device: MTLDevice, options: MTLResourceOptions = [] ) -> MTLBuffer? {
+    /// ArrayからMTLBufferを生成する
+    public func buffer( _ device: MTLDevice, options: MTLResourceOptions = [] ) -> MTLBuffer?
+    {
         device.makeBuffer(bytes: self,
                           length: count * MemoryLayout<Element>.size,
                           options: options )
     }
     
+    /// MTLBufferが保持する要素数を返す
+    public static func count(of buffer: MTLBuffer) -> Int
+    {
+        buffer.length / stride
+    }
+    
 }
 
-// MARK: - 整数
+extension Array {
+    
+    var stride: Int { Self.stride }
+    
+    static var stride: Int { MemoryLayout<Element>.stride }
+    
+}
+
+extension Array {
+    
+    func geometryElement(primitiveType type: SCNGeometryPrimitiveType) -> SCNGeometryElement
+    {
+        (0..<count)
+            .map({ UInt32($0) })
+            .geometryElement(primitiveType: type)
+    }
+    
+    static func geometryElement(buffer: MTLBuffer,
+                                primitiveType type: SCNGeometryPrimitiveType) -> SCNGeometryElement?
+    {
+        (0..<count(of: buffer))
+            .map({ UInt32($0) })
+            .geometryElement(primitiveType: type)
+    }
+
+}
+
+extension Array {
+
+    static func geometrySource(buffer: MTLBuffer,
+                               semantic: SCNGeometrySource.Semantic,
+                               vertexFormat: MTLVertexFormat) -> SCNGeometrySource
+    {
+        SCNGeometrySource(buffer:       buffer,
+                          vertexFormat: vertexFormat,
+                          semantic:     semantic,
+                          vertexCount:  count(of: buffer),
+                          dataOffset:   0,
+                          dataStride:   stride )
+    }
+
+}
+
+// MARK: -
 
 extension Array where Element: FixedWidthInteger {
     
@@ -42,12 +94,12 @@ extension Array where Element: FixedWidthInteger {
         if #available(macOS 11.0, *) {
             return SCNGeometryElement(buffer: elementBuffer,
                                       primitiveType: primitiveType,
-                                      primitiveCount: Element.elementCount(of: elementBuffer).primitiveCount(of: primitiveType),
-                                      bytesPerIndex: MemoryLayout<Element>.stride)
+                                      primitiveCount: Array<Element>.count(of: elementBuffer).primitiveCount(of: primitiveType),
+                                      bytesPerIndex: stride)
             
         } else {
             // Fallback on earlier versions
-            return SCNGeometryElement( indices: Self( of: elementBuffer ), primitiveType: primitiveType )
+            return SCNGeometryElement( indices: Self( elementBuffer ), primitiveType: primitiveType )
             
         }
         
@@ -55,84 +107,45 @@ extension Array where Element: FixedWidthInteger {
     
 }
 
-// MARK: - 頂点構造体
-
-extension Interleave {
-    
-    static func geometrySources(of vertexBuffer: MTLBuffer ) -> [SCNGeometrySource] {
-        Self.geometrySources(of: vertexBuffer, vertexCount: vertexCount(of: vertexBuffer) )
-    }
-
-}
 
 extension Array where Element: Interleave {
     
-    func geometrySources() -> [SCNGeometrySource] {
-        Element.geometrySources(of: data, vertexCount: count)
-    }
-
-    var data: Data { Data( bytes: self, count: MemoryLayout<Element>.size * count ) }
-
-}
-
-extension Interleave {
+    fileprivate var data: Data { Data( bytes: self, count: MemoryLayout<Element>.size * count ) }
     
-    static func geometrySources(of vertexBuffer: MTLBuffer, vertexCount: Int) -> [SCNGeometrySource] {
-        
-        semanticDetails.map {
-            SCNGeometrySource(buffer:       vertexBuffer,
-                              vertexFormat: $0.vertexFormat,
-                              semantic:     $0.semantic,
-                              vertexCount:  vertexCount,
-                              dataOffset:   $0.dataOffset,
-                              dataStride:   dataStride )
-        }
-        
-    }
-
-    static func geometrySources(of data: Data, vertexCount: Int ) -> [SCNGeometrySource] {
-        
-        semanticDetails.map {
+    func geometrySources() -> [SCNGeometrySource]
+    {
+        Element.semanticDetails.map {
             SCNGeometrySource(data:                data,
                               semantic:            $0.semantic,
-                              vectorCount:         vertexCount,
+                              vectorCount:         count,
                               usesFloatComponents: $0.usesFloatComponents,
                               componentsPerVector: $0.componentsPerVector,
                               bytesPerComponent:   $0.bytesPerComponent,
                               dataOffset:          $0.dataOffset,
-                              dataStride:          dataStride )
+                              dataStride:          stride )
         }
-        
     }
-    
-}
 
-extension Interleave {
-    
-    static func geometryElement(from vertexBuffer: MTLBuffer,
-                                       primitiveType type: SCNGeometryPrimitiveType) -> SCNGeometryElement?
+    static func geometrySources(of vertexBuffer: MTLBuffer ) -> [SCNGeometrySource]
     {
-        (0..<vertexCount(of: vertexBuffer))
-            .map({ UInt32($0) })
-            .geometryElement(primitiveType: type)
+        Element.semanticDetails.map {
+            SCNGeometrySource(buffer:       vertexBuffer,
+                              vertexFormat: $0.vertexFormat,
+                              semantic:     $0.semantic,
+                              vertexCount:  count(of: vertexBuffer),
+                              dataOffset:   $0.dataOffset,
+                              dataStride:   stride )
+        }
     }
 
-}
-
-extension Array where Element: Interleave {
-    
-    func geometryElement(primitiveType type: SCNGeometryPrimitiveType) -> SCNGeometryElement
-    {
-        (0..<count).map({ UInt32($0) })
-            .geometryElement(primitiveType: type)
-    }
 }
 
 // MARK: - SCNVector, SIMD2, SIMD3, SIMD4
 
-extension Array where Element: GeometrySourceVector {
+extension Array where Element: VertexDetail {
     
-    func geometrySource(semantic: SCNGeometrySource.Semantic) -> SCNGeometrySource {
+    func geometrySource(semantic: SCNGeometrySource.Semantic) -> SCNGeometrySource
+    {
         SCNGeometrySource( data: Data( bytes: self, count: MemoryLayout<Element>.size * count ),
                            semantic: semantic,
                            vectorCount: count,
@@ -140,8 +153,26 @@ extension Array where Element: GeometrySourceVector {
                            componentsPerVector: Element.componentsPerVector,
                            bytesPerComponent: Element.bytesPerComponent,
                            dataOffset: 0,
-                           dataStride: MemoryLayout<Element>.stride )
+                           dataStride: stride )
     }
     
+}
+
+extension Array where Element: VertexFormat {
+    
+    static func geometrySource(of buffer: MTLBuffer, semantic s: SCNGeometrySource.Semantic) -> SCNGeometrySource
+    {
+        geometrySource(buffer: buffer, semantic: s, vertexFormat: Element.vertexFormat)
+    }
+    
+}
+
+extension Array where Element: Interleave {
+    
+    func geometryElement(primitiveType type: PrimitiveType) -> SCNGeometryElement
+    {
+        count.geometryElement(primitiveType: type)
+    }
+
 }
 

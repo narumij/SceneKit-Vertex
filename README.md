@@ -47,20 +47,23 @@ extension Vertex: Semantic {
 例1
 ``` Swift
 let vertexBuffer: MTLBuffer = ...
-let geometry = Interleaved<Vertex>(buffer: vertexBuffer).geometry(primitiveType: .point)
+let geometry = Interleaved<Vertex>(buffer: vertexBuffer)
+                   .geometry(primitiveType: .point)
 ```
 
 例2
 ``` Swift
 let elementBuffer: MTLBuffer = ...
 let vertexBuffer: MTLBuffer = ...
-let geometry = Interleaved<Vertex>(buffer: vertexBuffer).geometry(elements: [(elementBuffer, .point)])
+let geometry = Interleaved<Vertex>(buffer: vertexBuffer)
+                   .geometry(elements: [(elementBuffer, .point)])
 ```
 
 例3
 ``` Swift
 let array: [Vertex] = ...
-let geometry = Interleaved(array: array).geometry(primitiveType: .point)
+let geometry = Interleaved(array: array)
+                   .geometry(primitiveType: .point)
 ```
 
 例4
