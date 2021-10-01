@@ -8,9 +8,11 @@
 import SceneKit
 
 
-extension SCNVector3: SIMD {
+extension SCNVector3: SIMD
+{
     public typealias MaskStorage = SIMD3<SCNFloat.NativeType>.MaskStorage
-    public subscript(index: Int) -> SCNFloat {
+    public subscript(index: Int) -> SCNFloat
+    {
         get {
             switch index {
             case 0: return x
@@ -28,16 +30,15 @@ extension SCNVector3: SIMD {
             }
         }
     }
-    public var scalarCount: Int {
-        3
-    }
+    public var scalarCount: Int { 3 }
     public typealias Scalar = SCNFloat
 }
 
 
 extension SCNVector4: SIMD {
     public typealias MaskStorage = SIMD4<SCNFloat.NativeType>.MaskStorage
-    public subscript(index: Int) -> SCNFloat {
+    public subscript(index: Int) -> SCNFloat
+    {
         get {
             switch index {
             case 0: return x
@@ -57,9 +58,8 @@ extension SCNVector4: SIMD {
             }
         }
     }
-    public var scalarCount: Int {
-        4
-    }
+    public var scalarCount: Int { 4 }
     public typealias Scalar = SCNFloat
+    
 }
 

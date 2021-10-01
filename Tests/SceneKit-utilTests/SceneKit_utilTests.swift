@@ -58,6 +58,15 @@ final class SceneKit_utilTests: XCTestCase {
         
     }
     
+    func test0() throws {
+        let vertex: [SIMD3<Float>] = []
+        let normal: [SIMD3<Float>] = []
+        let color: [SIMD3<Float>] = []
+
+        let _ = Separated(arrays: [.vertex(vertex), .normal(normal), .color(color)])
+            .geometry(primitiveType: .lineStrip)
+    }
+    
     func testSIMD() throws {
         
 //        XCTAssertEqual( SCNGeometry.lineStripIndices(count: 4), [0,1,1,2,2,3])

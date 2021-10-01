@@ -7,7 +7,8 @@
 
 import SceneKit
 
-public enum PrimitiveType : Int {
+public enum PrimitiveType : Int
+{
     case triangles = 0
     case triangleStrip = 1
     case line = 2
@@ -18,9 +19,8 @@ public enum PrimitiveType : Int {
 }
 
 
-
-extension SCNGeometryPrimitiveType {
-    
+extension SCNGeometryPrimitiveType
+{
     init(_ t: PrimitiveType) {
         switch t {
         case .triangles:
@@ -36,6 +36,25 @@ extension SCNGeometryPrimitiveType {
         case .lineStrip:
             fatalError()
         }
+    }
+    
+}
+
+extension Int
+{
+    func primitiveCount(of type: SCNGeometryPrimitiveType ) -> Int
+    {
+        switch type {
+        case .triangleStrip:
+            return (self - 2)
+        case .triangles:
+            return self / 3
+        case .line:
+            return self / 2
+        default:
+            return self
+        }
+        
     }
     
 }

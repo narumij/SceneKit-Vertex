@@ -6,7 +6,19 @@
 //
 
 import SceneKit
-import Metal
+
+
+public protocol Geometry
+{
+    /// 引数で指定された描画プリミティブでの描画を行うSCNGeometryを生成する
+    func geometry(primitiveType type: PrimitiveType) -> SCNGeometry?
+    
+    /// 引数で与えられた、頂点インデックス配列と描画プリミティブの組み合わせを持ったSCNGeometryを生成する
+    func geometry<T: FixedWidthInteger>(elements: [([T], SCNGeometryPrimitiveType)]) -> SCNGeometry
+    
+    /// 引数で与えられた、頂点インデックスバッファと描画プリミティブの組み合わせを持ったSCNGeometryを生成する
+    func geometry<T: FixedWidthInteger>(elements: [(TypedBuffer<T>, SCNGeometryPrimitiveType)]) -> SCNGeometry
+}
 
 
 extension GeometrySource {
@@ -22,10 +34,13 @@ extension GeometrySource {
                      elements: elements.map{ $0.geometryElement(primitiveType: $1 ) })
     }
     
-    public func geometry(elements: [(MTLBuffer, SCNGeometryPrimitiveType)]) -> SCNGeometry {
+    public func geometry<T: FixedWidthInteger>(elements: [(TypedBuffer<T>, SCNGeometryPrimitiveType)]) -> SCNGeometry {
         SCNGeometry( sources: geometrySources(),
-                     elements: elements.map{ Array<Int32>.geometryElement( of: $0, primitiveType: $1 ) } )
+                     elements: elements.map{ $0.geometryElement(primitiveType: $1) } )
     }
-
+    
 }
 
+
+extension Interleaved: Geometry { }
+extension Separated: Geometry { }
