@@ -15,12 +15,11 @@ extension Int
         
         let count: Int
         
+        func idx(_ n: Int) -> Int { n / 2 + n % 2 }
+        
         var lineStripIndices: [Int]
         {
-            func idx(_ n: Int) -> Int {
-                return n / 2 + n % 2
-            }
-            return count == 0 ? [] : Array<Int>( 0 ..< (count-1)*2).map{ idx($0) }
+            count == 0 ? [] : Array<Int>( 0 ..< (count-1)*2).map{ idx($0) }
         }
         
         func geometryElement() -> SCNGeometryElement
@@ -34,7 +33,9 @@ extension Int
     
     fileprivate func geometryElement(primitiveType type: SCNGeometryPrimitiveType) -> SCNGeometryElement
     {
-        ( 0 ..< self ).map({ UInt32( $0 ) }).geometryElement(primitiveType: type )
+        ( 0 ..< self )
+            .map({ UInt32( $0 ) })
+            .geometryElement(primitiveType: type )
     }
     
     func geometryElement(primitiveType type: PrimitiveType) -> SCNGeometryElement

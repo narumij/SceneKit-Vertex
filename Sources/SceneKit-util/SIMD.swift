@@ -8,6 +8,30 @@
 import SceneKit
 
 
+extension CGPoint: SIMD
+{
+    public typealias MaskStorage = SIMD2<CGFloat.NativeType>.MaskStorage
+    public subscript(index: Int) -> SCNFloat
+    {
+        get {
+            switch index {
+            case 0: return x
+            case 1: return y
+            default: fatalError()
+            }
+        }
+        set(newValue) {
+            switch index {
+            case 0: x = newValue
+            case 1: y = newValue
+            default: fatalError()
+            }
+        }
+    }
+    public var scalarCount: Int { 2 }
+    public typealias Scalar = CGFloat
+}
+
 extension SCNVector3: SIMD
 {
     public typealias MaskStorage = SIMD3<SCNFloat.NativeType>.MaskStorage

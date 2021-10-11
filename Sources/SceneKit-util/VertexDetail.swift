@@ -10,198 +10,153 @@ import Metal
 
 // MARK: -
 
-public protocol VertexDetail
-{
-    static var componentsPerVector: Int { get }
-    associatedtype Scalar
-}
-
-extension VertexDetail
-{
-    public static var usesFloatComponents: Bool
-    {
-        (Self.self as? UsesFloatComponents.Type)?.usesFloatComponents ?? false
-    }
-    
-    public static var bytesPerComponent: Int
-    {
-        MemoryLayout<Scalar>.size
-    }
-    
-}
-
-public protocol UsesFloatComponents
-{
+public protocol UsesFloatComponents {
     static var usesFloatComponents: Bool { get }
 }
 
-extension VertexDetail where Self: UsesFloatComponents, Scalar: BinaryFloatingPoint
-{
+extension FixedWidthInteger {
+    public static var usesFloatComponents: Bool { false }
+}
+
+extension FloatingPoint {
     public static var usesFloatComponents: Bool { true }
 }
 
-extension CGPoint: VertexDetail, UsesFloatComponents
-{
-    public typealias Scalar = CGFloat
-    public static var componentsPerVector: Int { 2 }
+extension SIMD where Scalar: UsesFloatComponents {
+    public static var usesFloatComponents: Bool { Scalar.usesFloatComponents }
 }
 
-extension SCNVector3: VertexDetail, UsesFloatComponents
-{
-    public static var componentsPerVector: Int { 3 }
-}
+// MARK: -
 
-extension SCNVector4: VertexDetail, UsesFloatComponents
-{
-    public static var componentsPerVector: Int { 4 }
-}
-
-extension SIMD2: VertexDetail
-{
-    public static var componentsPerVector: Int { 2 }
-}
-
-extension SIMD3: VertexDetail
-{
-    public static var componentsPerVector: Int { 3 }
-}
-
-extension SIMD4: VertexDetail
-{
-    public static var componentsPerVector: Int { 4 }
-}
-
-extension SIMD2: UsesFloatComponents where Scalar: BinaryFloatingPoint { }
-extension SIMD3: UsesFloatComponents where Scalar: BinaryFloatingPoint { }
-extension SIMD4: UsesFloatComponents where Scalar: BinaryFloatingPoint { }
-
-public protocol VertexFormat
-{
-    static var vertexFormat: MTLVertexFormat { get }
-    static var usesFloatComponents: Bool { get }
-    static var componentsPerVector: Int { get }
+public protocol BytesPerComponent {
     static var bytesPerComponent: Int { get }
 }
 
-public protocol VertexFormatArray
-{
-    static var vertexFormatArray: [MTLVertexFormat] { get }
-}
-
-extension Double: VertexFormat
-{
-    public static var vertexFormat: MTLVertexFormat { fatalError() }
-    public static var usesFloatComponents: Bool { true }
-    public static var componentsPerVector: Int { 1 }
+extension FixedWidthInteger {
     public static var bytesPerComponent: Int { MemoryLayout<Self>.size }
 }
 
-extension Float: VertexFormat
-{
-    public static var vertexFormat: MTLVertexFormat { .float }
-    public static var usesFloatComponents: Bool { true }
-    public static var componentsPerVector: Int { 1 }
+extension FloatingPoint {
     public static var bytesPerComponent: Int { MemoryLayout<Self>.size }
 }
 
-extension Int: VertexFormat
-{
-    public static var vertexFormat: MTLVertexFormat { .int }
-    public static var usesFloatComponents: Bool { false }
+extension SIMD where Scalar: BytesPerComponent {
+    public static var bytesPerComponent: Int { Scalar.bytesPerComponent }
+}
+
+// MARK: -
+
+public protocol ComponentsPerVecotr {
+    static var componentsPerVector: Int { get }
+}
+
+extension Numeric {
     public static var componentsPerVector: Int { 1 }
-    public static var bytesPerComponent: Int { MemoryLayout<Self>.size }
 }
 
-extension Int32: VertexFormat
-{
-    public static var vertexFormat: MTLVertexFormat { .int }
-    public static var usesFloatComponents: Bool { false }
-    public static var componentsPerVector: Int { 1 }
-    public static var bytesPerComponent: Int { MemoryLayout<Self>.size }
+extension SIMD where Scalar: BytesPerComponent {
+    public static var componentsPerVector: Int { scalarCount }
 }
 
-extension Int16: VertexFormat
-{
-    public static var vertexFormat: MTLVertexFormat { .short }
-    public static var usesFloatComponents: Bool { false }
-    public static var componentsPerVector: Int { 1 }
-    public static var bytesPerComponent: Int { MemoryLayout<Self>.size }
+// MARK: -
+
+public protocol VertexScalar {
+    static var VertexFormatArray: [MTLVertexFormat] { get }
 }
 
-extension Int8: VertexFormat
+extension Float
 {
-    public static var vertexFormat: MTLVertexFormat { .char }
-    public static var usesFloatComponents: Bool { false }
-    public static var componentsPerVector: Int { 1 }
-    public static var bytesPerComponent: Int { MemoryLayout<Self>.size }
-}
-
-extension SIMD where Scalar: VertexFormatArray
-{
-    public static var vertexFormat: MTLVertexFormat
-    {
-        Scalar.vertexFormatArray[scalarCount - 1]
-    }
-}
-
-extension SIMD2: VertexFormat where Scalar: VertexFormatArray { }
-extension SIMD3: VertexFormat where Scalar: VertexFormatArray { }
-extension SIMD4: VertexFormat where Scalar: VertexFormatArray { }
-
-extension Float: VertexFormatArray
-{
-    public static var vertexFormatArray: [MTLVertexFormat]
+    public static var VertexFormatArray: [MTLVertexFormat]
     {
         [ .float, .float2, .float3, .float4 ]
     }
 }
 
-extension Int32: VertexFormatArray
+extension Int32
 {
-    public static var vertexFormatArray: [MTLVertexFormat]
+    public static var VertexFormatArray: [MTLVertexFormat]
     {
         [ .int, .int2, .int2, .int4 ]
     }
 }
 
-extension Int16: VertexFormatArray
+extension Int16
 {
-    public static var vertexFormatArray: [MTLVertexFormat]
+    public static var VertexFormatArray: [MTLVertexFormat]
     {
         [ .short, .short2, .short3, .short4 ]
     }
 }
 
-extension Int8: VertexFormatArray
+extension Int8
 {
-    public static var vertexFormatArray: [MTLVertexFormat]
+    public static var VertexFormatArray: [MTLVertexFormat]
     {
         [ .char, .char2, .char3, .char4 ]
     }
 }
 
-extension UInt32: VertexFormatArray
+extension UInt32
 {
-    public static var vertexFormatArray: [MTLVertexFormat]
+    public static var VertexFormatArray: [MTLVertexFormat]
     {
         [ .ushort, .ushort2, .ushort3, .ushort4 ]
     }
 }
 
-extension UInt16: VertexFormatArray
+extension UInt16
 {
-    public static var vertexFormatArray: [MTLVertexFormat]
+    public static var VertexFormatArray: [MTLVertexFormat]
     {
         [ .ushort, .ushort2, .ushort3, .ushort4 ]
     }
 }
 
-extension UInt8: VertexFormatArray
+extension UInt8
 {
-    public static var vertexFormatArray: [MTLVertexFormat]
+    public static var VertexFormatArray: [MTLVertexFormat]
     {
         [ .ushort, .ushort2, .ushort3, .ushort4 ]
     }
 }
 
+
+// MARK: -
+
+public protocol VertexFormat: SCNVertexDetail {
+    static var vertexFormat: MTLVertexFormat { get }
+}
+
+extension Numeric where Self: VertexScalar {
+    public static var vertexFormat: MTLVertexFormat { VertexFormatArray[0] }
+}
+
+extension SIMD where Scalar: VertexScalar {
+    public static var vertexFormat: MTLVertexFormat { Scalar.VertexFormatArray[scalarCount - 1] }
+}
+
+
+// MARK: -
+
+public typealias SCNVertexDetail = UsesFloatComponents & BytesPerComponent & ComponentsPerVecotr
+public typealias MTLVertexDetail = VertexFormat & SCNVertexDetail
+
+extension Int8:    SCNVertexDetail & MTLVertexDetail & VertexScalar { }
+extension Int16:   SCNVertexDetail & MTLVertexDetail & VertexScalar { }
+extension Int32:   SCNVertexDetail & MTLVertexDetail & VertexScalar { }
+extension UInt8:   SCNVertexDetail & MTLVertexDetail & VertexScalar { }
+extension UInt16:  SCNVertexDetail & MTLVertexDetail & VertexScalar { }
+extension UInt32:  SCNVertexDetail & MTLVertexDetail & VertexScalar { }
+extension Float32: SCNVertexDetail & MTLVertexDetail & VertexScalar { }
+extension Int:     SCNVertexDetail { }
+extension Float64: SCNVertexDetail { }
+extension CGFloat: SCNVertexDetail { }
+
+extension SIMD2: SCNVertexDetail & MTLVertexDetail where Scalar: SCNVertexDetail & VertexScalar { }
+extension SIMD3: SCNVertexDetail & MTLVertexDetail where Scalar: SCNVertexDetail & VertexScalar { }
+extension SIMD4: SCNVertexDetail & MTLVertexDetail where Scalar: SCNVertexDetail & VertexScalar { }
+
+extension CGPoint:    SCNVertexDetail { }
+extension SCNVector3: SCNVertexDetail { }
+extension SCNVector4: SCNVertexDetail { }
 
