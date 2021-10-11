@@ -67,6 +67,14 @@ final class SceneKit_utilTests: XCTestCase {
             .geometry(primitiveType: .lineStrip)
     }
     
+    func test1() throws {
+        XCTAssertEqual( Int8.bytesPerComponent, 1 )
+        XCTAssertEqual( Int16.bytesPerComponent, 2 )
+        XCTAssertEqual( Int32.bytesPerComponent, 4 )
+        XCTAssertEqual( Int.bytesPerComponent, 8 )
+        XCTAssertEqual( SIMD3<Int>.bytesPerComponent, 8 )
+    }
+    
     func testSIMD() throws {
         
 //        XCTAssertEqual( SCNGeometry.lineStripIndices(count: 4), [0,1,1,2,2,3])

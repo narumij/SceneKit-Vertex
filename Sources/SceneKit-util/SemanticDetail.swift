@@ -25,28 +25,28 @@ public protocol Interleave
 
 public protocol Position: Interleave
 {
-    associatedtype PositionType: VertexFormat, SIMD
+    associatedtype PositionType: MTLVertexDetail, SIMD
     var position: PositionType { get }
     static var positionKeyPath: PartialKeyPath<Self> { get }
 }
 
 public protocol Normal: Interleave
 {
-    associatedtype NormalType: VertexFormat, SIMD
+    associatedtype NormalType: MTLVertexDetail, SIMD
     var normal: NormalType { get }
     static var normalKeyPath: PartialKeyPath<Self> { get }
 }
 
 public protocol Texcoord: Interleave
 {
-    associatedtype TexcoordType: VertexFormat
+    associatedtype TexcoordType: MTLVertexDetail
     var texcoord: TexcoordType { get }
     static var texcoordKeyPath: PartialKeyPath<Self> { get }
 }
 
 public protocol Color: Interleave
 {
-    associatedtype ColorType: VertexFormat
+    associatedtype ColorType: MTLVertexDetail
     var color: ColorType { get }
     static var colorKeyPath: PartialKeyPath<Self> { get }
 }

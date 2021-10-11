@@ -14,6 +14,7 @@ public struct TypedBuffer<T>
     public init(_ b: MTLBuffer) {
         buffer = b
     }
+    
 }
 
 extension TypedBuffer where Element: FixedWidthInteger
@@ -25,7 +26,7 @@ extension TypedBuffer where Element: FixedWidthInteger
     
 }
 
-extension TypedBuffer where Element: VertexFormat
+extension TypedBuffer where Element: MTLVertexDetail
 {
     func geometrySource(semantic s: SCNGeometrySource.Semantic) -> SCNGeometrySource
     {

@@ -142,7 +142,7 @@ extension Array where Element: Interleave {
 
 // MARK: - SCNVector, SIMD2, SIMD3, SIMD4
 
-extension Array where Element: VertexDetail {
+extension Array where Element: SCNVertexDetail {
     
     func geometrySource(semantic: SCNGeometrySource.Semantic) -> SCNGeometrySource
     {
@@ -158,7 +158,7 @@ extension Array where Element: VertexDetail {
     
 }
 
-extension Array where Element: VertexFormat {
+extension Array where Element: MTLVertexDetail {
     
     static func geometrySource(of buffer: MTLBuffer, semantic s: SCNGeometrySource.Semantic) -> SCNGeometrySource
     {

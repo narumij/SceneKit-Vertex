@@ -7,14 +7,21 @@
 
 import SceneKit
 
+/// 描画形状
 public enum PrimitiveType : Int
 {
+    /// 三角
     case triangles = 0
+    /// 連続の三角
     case triangleStrip = 1
+    /// 直線
     case line = 2
+    /// 点
     case point = 3
     @available(macOS 10.12, *)
+    /// ポリゴン
     case polygon = 4
+    /// 連続の直線
     case lineStrip = 5
 }
 
