@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "SceneKit-util",
     platforms: [
-            .macOS(.v10_13)
+//        .macOS(.v10_13), .iOS(.v11)
+        .macOS(.v11), .iOS(.v14)
         ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -23,6 +24,9 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "SceneKit-util",
+            dependencies: []),
+        .target(
+            name: "SceneKit-util-float16",
             dependencies: []),
         .testTarget(
             name: "SceneKit-utilTests",

@@ -2,27 +2,90 @@ import XCTest
 @testable import SceneKit_util
 import SceneKit
 
-struct MyVertex: Position, Texcoord {
+struct MyVertex {
     let position: SIMD2<Float>
     let texcoord: SIMD2<Float>
 }
 
+enum Semantics {
+    case position
+    case normal
+    case texcoord
+    case color
+}
+
 extension MyVertex {
-    static var positionKeyPath: PartialKeyPath<Self> { \Self.position }
-    static var texcoordKeyPath: PartialKeyPath<Self> { \Self.texcoord }
+        
+    static func semantic<T>(_ v: T,_ keyPath: PartialKeyPath<Self>) -> some AttributeFormatTraits where T: BasicVertexDetail {
+        Attrb<T>(.vertex, keyPath)
+    }
+
 }
 
-struct HalfVertex: Interleave {
-    let position: SIMD3<UInt16>
-    let normal: SIMD3<UInt16>
+extension MyVertex: Position, Texcoord, MetalInterleave {
+    static var positionKeyPath: AttrbKeyPath { \Self.position }
+    static var texcoordKeyPath: AttrbKeyPath { \Self.texcoord }
 }
 
-extension HalfVertex {
-    static var semanticDetails: [SemanticDetail] {
-        [ (.vertex, .half3, true, 3, 2, MemoryLayout.offset(of: \Self.position)! ),
-          (.normal, .half3, true, 3, 2, MemoryLayout.offset(of: \Self.normal)! ) ]
+extension MyVertex: VertexInfo {
+    
+    static var vertexKeyPath: [ SCNGeometrySource.Semantic: PartialKeyPath<MyVertex> ] = [ .vertex: \Self.position, .texcoord: \Self.texcoord ]
+    
+    
+//    static var vertexInfo: InterleaveInfo { [ .vertex: \.position, .texcoord: \.texcoord ] }
+    static let hogehoge //: [ SCNGeometrySource.Semantic: (,PartialKeyPath<MyVertex>) ]
+    : [SCNGeometrySource.Semantic: AttributeFormatTraits]
+    = [  .vertex: semantic( SIMD2<Float>.zero, \Self.position ),
+         .texcoord: Attrb<SIMD2<Float>>(.texcoord,\Self.texcoord) ]
+    
+    static let b: [SCNGeometrySource.Semantic:MTLVertexFormat]
+    = [.vertex: .float, .texcoord: .float3]
+    
+//    static let test: A = D<Int>(\Self.position)
+}
+
+
+protocol VertexInfo {
+    typealias InterleaveInfo = [ SCNGeometrySource.Semantic: PartialKeyPath<Self> ]
+    static var vertexInfo: InterleaveInfo { get }
+    var position: SIMD2<Float> { get }
+    var texcoord: SIMD2<Float> { get }
+}
+
+extension VertexInfo {
+    static var vertexInfo: InterleaveInfo { [ .vertex: \.position, .texcoord: \.texcoord ] }
+    static func hoge() -> Int {
+        MemoryLayout.offset(of: vertexInfo[.texcoord]!)!
     }
 }
+
+
+struct HalfVertex {
+    let position: SIMD3<Float16>
+    let normal: SIMD3<Float16>
+}
+
+extension HalfVertex: BasicInterleave, MetalInterleave {
+    public static var basicAttributes: [BasicAttribute] {
+        [ BasicAttrb( .vertex, \Self.position, usesFloatComponents: true, componentsPerVector: 3, bytesPerComponent: 2 ),
+          BasicAttrb( .normal, \Self.normal,   usesFloatComponents: true, componentsPerVector: 3, bytesPerComponent: 2 ) ]
+    }
+    public static var metalAttributes: [MetalAttribute] {
+        [ MetalAttrb( .vertex, .half3, \Self.position ),
+          MetalAttrb( .normal, .half3, \Self.normal ) ]
+    }
+}
+
+let test_v: SIMD3<Float16> = .zero
+
+//struct HalfVertex2: Position, Normal {
+//    let position: SIMD3<UInt16>
+//    let normal: SIMD3<UInt16>
+//}
+//extension HalfVertex2 {
+//    static var positionKeyPath: PartialKeyPath<Self> { \Self.position }
+//    static var normalKeyPath: PartialKeyPath<Self> { \Self.normal }
+//}
 
 extension Array where Element == MyVertex {
     init(_ seed:[((Float,Float),(Float,Float))] ) {
@@ -30,9 +93,70 @@ extension Array where Element == MyVertex {
     }
 }
 
+struct vertex_n3h_v3h {
+    var position: SIMD3<Float16> // Metal
+    var normal: SIMD3<Float16> // Metal
+}
+
+extension vertex_n3h_v3h: MetalInterleave {
+    public static var metalAttributes: [MetalAttribute] {
+        [ VertexAttrib( .vertex, .half3, \Self.position ),
+          VertexAttrib( .normal, .half3, \Self.normal   ) ]
+    }
+}
+
+struct vertex_t2f_v3f {
+    var position: SIMD3<Float> // Full
+    var texcoord: SIMD2<Float> // Full
+}
+
+extension vertex_t2f_v3f: BasicInterleave, Position, Texcoord {
+    static let positionKeyPath: AttrbKeyPath = \Self.position
+    static let texcoordKeyPath: AttrbKeyPath = \Self.texcoord
+}
+
+// let a = vertex_t2f_v3f.attributeDetails
+// let a = vertex_t2f_v3f.metalAttributeDetails
+
+#if false
+// 混在はMetalInterleaveにできなくしたい。これは、できない。
+struct vertex_t2f_v2d: Position, Texcoord, MetalInterleave {
+    var position: CGPoint // Full
+    var texcoord: SIMD2<Float> // Basic
+}
+
+extension vertex_t2f_v2d {
+    static let positionKeyPath: AttrbKeyPath = \Self.position
+    static let texcoordKeyPath: AttrbKeyPath = \Self.texcoord
+}
+#endif
+
+#if true
+// 混在はMetalInterleaveにできなくしたいが、ポイントが適用されていると、できてしまう。
+struct vertex_t2d_v3f: Position, Texcoord {
+    var position: SIMD3<Float> // Full
+    var texcoord: CGPoint // Basic
+}
+extension vertex_t2d_v3f {
+    static let positionKeyPath: AttrbKeyPath = \Self.position
+    static let texcoordKeyPath: AttrbKeyPath = \Self.texcoord
+}
+#endif
+
+struct vertex_t2d_v3d: Position, Texcoord {
+    var position: SCNVector3 // Basic
+    var texcoord: CGPoint // Basic
+}
+
+extension vertex_t2d_v3d {
+    static let positionKeyPath: AttrbKeyPath = \Self.position
+    static let texcoordKeyPath: AttrbKeyPath = \Self.texcoord
+}
+
 //extension Array where Element: VectorDetail {
 //    static var usesFloatComponentsT: Bool { __usesFloatComponents(Element.self) }
 //}
+
 
 final class SceneKit_utilTests: XCTestCase {
     func testExample() throws {
@@ -55,6 +179,8 @@ final class SceneKit_utilTests: XCTestCase {
 //            vertices0.geometry(with: device, primitiveType: .triangleStrip),
 //            vertices0.geometry(with: device, primitiveType: .line),
 //            vertices0.geometry(with: device, primitiveType: .point)]
+        
+//        XCTAssertEqual( KeyPathGet.hoge(MyVertex(position: .zero, texcoord: .zero)), 4)
         
     }
     

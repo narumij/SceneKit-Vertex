@@ -1,12 +1,19 @@
 # SceneKit-util
 
-## 説明
+Easily assemble SCN Geometry from Array or MTL Buffer.
 
-配列やMTLBufferからSCNGeometryを生成します。
+## Features
 
-## 使い方
+|Features|
+|-|
+|Open source library written in Swift 5.5|
+|Distribution with Swift Package|
+|For rapid prototyping with SceneKit|
 
-## 準備
+
+## How to use?
+
+### 1. Prepare Vertex
 
 ``` Metal
 typedef struct {
@@ -15,67 +22,107 @@ typedef struct {
 } Vertex;
 ```
 
-上記のようなMetalAPIで書かれた頂点構造体がある場合は、プロトコル適合することで利用可能になります。
+### 2. Adding Protocol Conformance
 
-例1
+#### case 1
+
 ``` Swift
-extension Vertex: Position, Texcoord {
+extension Vertex: Position, Texcoord, BasicInterleave
+{
     static var positionKeyPath: PartialKeyPath<Self> { \Self.position }
     static var texcoordKeyPath: PartialKeyPath<Self> { \Self.texcoord }
 }
 ```
 
-セマンティックに用いているメンバ名が、この拡張の想定と一致する場合、該当するセマンティックプロトコルに適合させます。
-適合には、追加でメモリのオフセットを計算するために必要なクラスメンバ変数が必要になります。
-セマンティックは今のところ、Position、Normal、Texcoord、Colorの4種類です。
+#### case 2
 
-例2
 ``` Swift
-extension Vertex: Semantic {
-    static var semanticDetail: [SemanticDetail] {
-        [ (.vertex, .float3, MemoryLayout.offset(of: \Self.position)! ),
-          (.texcoord, .float3, MemoryLayout.offset(of: \Self.normal)! ) ]
+extension Vertex: MetalInterleave
+{
+    public static var metalAttributes: [MetalAttribute]
+    {
+        [ Attrb< SIMD3<Float> >( .vertex, \Self.position ),
+          Attrb< SIMD3<Float> >( .normal, \Self.normal   ) ]
     }
 }
 ```
 
-半精度浮動小数や、normalizedな整数を用いたい場合、あるいはセマンティック名として想定している名前とは違うメンバ名を構造体に採用したい場合。こちらの方法で利用できます。
+#### case 3
 
-
-## 使用例
-
-例1
 ``` Swift
-let vertexBuffer: MTLBuffer = ...
-let geometry = Interleaved<Vertex>(buffer: vertexBuffer)
-                   .geometry(primitiveType: .point)
+extension Vertex: BasicInterleave, MetalInterleave
+{
+    public static var basicAttributes: [BasicAttribute]
+    {
+        metalAttributeDetails
+    }
+    public static var metalAttributes: [MetalAttribute]
+    {
+        [ MetalAttrb( .vertex, .float3, \Self.position ),
+          MetalAttrb( .normal, .float3, \Self.normal   ) ]
+    }
+}
 ```
 
-例2
+### 3. Create SCNGeometry
+
+#### Interleaved (1)
+ - BasicInterleave protocol
+
+``` Swift
+let array: [Vertex] = ...
+let geometry: SCNGeometry = Interleaved(array: array)
+                                .geometry(primitiveType: .point)
+```
+
+``` Swift
+let array: [Vertex] = ...
+let geometry: SCNGeometry = Interleaved(array: array)
+                                .geometry(elements: [(elementBuffer, .line)])
+```
+
+#### Interleaved (2)
+ - MetalInterleave protocol
+
+``` Swift
+let vertexBuffer: MTLBuffer = ...
+let geometry: SCNGeometry = Interleaved<Vertex>(buffer: vertexBuffer)
+                                .geometry(primitiveType: .triangle)
+```
+
 ``` Swift
 let elementBuffer: MTLBuffer = ...
 let vertexBuffer: MTLBuffer = ...
-let geometry = Interleaved<Vertex>(buffer: vertexBuffer)
-                   .geometry(elements: [(elementBuffer, .point)])
+let geometry: SCNGeometry = Interleaved<Vertex>(buffer: vertexBuffer)
+                                .geometry(elements: [(elementBuffer, .triangleStrip)])
 ```
 
-例3
-``` Swift
-let array: [Vertex] = ...
-let geometry = Interleaved(array: array)
-                   .geometry(primitiveType: .point)
-```
+#### Separated
+- Arrays
 
-例4
 ``` Swift
 let vertex: [SIMD3<Float>] = ...
 let normal: [SIMD3<Float>] = ...
-let geometry = Seprated(vertex: vertex, normal: normal)
-                   .geometry(primitiveType: .lineStrip)
+let geometry: SCNGeometry = Seprated(vertex: vertex, normal: normal)
+                                .geometry(primitiveType: .lineStrip) // !!
 ```
 
-## いつかやる
+``` Swift
+let vertex: [SIMD3<Float>] = ...
+let normal: [SIMD3<Float>] = ...
+let geometry: SCNGeometry = Seprated(vertex: vertex, normal: normal)
+                                .geometry(elements: [(elementBuffer, .triangle)])
+```
 
+## Requirements
+
+- Xcode 13
+- macOS11 or newer, iOS14 or newer
+
+## Todo
+
+- 違う名称にする
 - ヘッダードックの追記
-- ドキュメントの英語化
-- テストコードの追加
+- ドキュメントもっと書く
+- テストコード書く
+
