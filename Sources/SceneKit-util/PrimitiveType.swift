@@ -18,6 +18,7 @@ public enum PrimitiveType : Int
     case line = 2
     /// 点
     case point = 3
+    
     @available(macOS 10.12, *)
     /// ポリゴン
     case polygon = 4

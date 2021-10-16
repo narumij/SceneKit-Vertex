@@ -11,7 +11,9 @@ public struct TypedBuffer<T>
 {
     public typealias Element = T
     let buffer: MTLBuffer
-    public init(_ b: MTLBuffer) {
+    
+    public init(_ b: MTLBuffer)
+    {
         buffer = b
     }
     
@@ -26,7 +28,7 @@ extension TypedBuffer where Element: FixedWidthInteger
     
 }
 
-extension TypedBuffer where Element: MTLVertexDetail
+extension TypedBuffer where Element: MetalVertexDetail
 {
     func geometrySource(semantic s: SCNGeometrySource.Semantic) -> SCNGeometrySource
     {
@@ -35,7 +37,7 @@ extension TypedBuffer where Element: MTLVertexDetail
     
 }
 
-extension TypedBuffer where Element: Interleave
+extension TypedBuffer where Element: MetalInterleave
 {
     func geometrySources() -> [SCNGeometrySource]
     {

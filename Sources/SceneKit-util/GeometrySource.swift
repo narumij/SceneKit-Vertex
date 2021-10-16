@@ -9,16 +9,18 @@ import SceneKit
 import Metal
 
 /// 構造体化された頂点を利用する
-public struct Interleaved<T: Interleave>
+public struct Interleaved<VertexType: Interleave>
 {
     fileprivate let source: InterleaveSource
     
-    public init(array aa: [T]) {
+    public init(array aa: [VertexType]) where VertexType: BasicInterleave
+    {
         source = aa
     }
     
-    public init(buffer b: MTLBuffer) {
-        source = TypedBuffer<T>(b)
+    public init(buffer b: MTLBuffer) where VertexType: MetalInterleave
+    {
+        source = TypedBuffer<VertexType>(b)
     }
     
     public func geometrySources() -> [SCNGeometrySource]
@@ -39,15 +41,18 @@ public struct Separated {
     
     let items: [Semantic]
     
-    public init(items ii: [Semantic]) {
+    public init(items ii: [Semantic])
+    {
         items = ii
     }
     
-    public init(arrays aa: [ArraySemantic]) {
+    public init(arrays aa: [ArraySemantic])
+    {
         self.init(items: aa )
     }
 
-    public init(buffers bb: [BufferSemantic]) {
+    public init(buffers bb: [BufferSemantic])
+    {
         self.init(items: bb )
     }
 
@@ -76,7 +81,7 @@ public protocol GeometrySource
     func geometryElement(primitiveType type: PrimitiveType) -> SCNGeometryElement?
 }
 
-extension Separated: GeometrySource { }
+extension Separated:   GeometrySource { }
 extension Interleaved: GeometrySource { }
 
 
@@ -89,8 +94,8 @@ fileprivate protocol InterleaveSource
     func geometryElement(primitiveType type: PrimitiveType) -> SCNGeometryElement
 }
 
-extension TypedBuffer: InterleaveSource where Element: Interleave { }
-extension Array: InterleaveSource where Element: Interleave { }
+extension TypedBuffer: InterleaveSource where Element: MetalInterleave { }
+extension Array:       InterleaveSource where Element: BasicInterleave { }
 
 
 
@@ -99,27 +104,33 @@ extension Array: InterleaveSource where Element: Interleave { }
 extension Separated
 {
     
-    public init<T: SCNVertexDetail>(vertex: [T]) {
+    public init<T: BasicVertexDetail>(vertex: [T])
+    {
         self.init(items: [.vertex(vertex)] )
     }
     
-    public init<T: SCNVertexDetail,S: SCNVertexDetail>(vertex: [T], normal: [S]) {
+    public init<T: BasicVertexDetail,S: BasicVertexDetail>(vertex: [T], normal: [S])
+    {
         self.init(items: [.vertex(vertex), .normal(normal)] )
     }
     
-    public init<T: SCNVertexDetail,S: SCNVertexDetail>(vertex: [T], texcoord: [S]) {
+    public init<T: BasicVertexDetail,S: BasicVertexDetail>(vertex: [T], texcoord: [S])
+    {
         self.init(items: [.vertex(vertex), .texcoord(texcoord)] )
     }
     
-    public init<T: SCNVertexDetail,S: SCNVertexDetail, U: SCNVertexDetail>(vertex: [T], normal: [S], texcoord: [U]) {
+    public init<T: BasicVertexDetail,S: BasicVertexDetail, U: BasicVertexDetail>(vertex: [T], normal: [S], texcoord: [U])
+    {
         self.init(items: [.vertex(vertex), .normal(normal), .texcoord(texcoord)] )
     }
     
-    public init<T: SCNVertexDetail,S: SCNVertexDetail>(vertex: [T], color: [S]) {
+    public init<T: BasicVertexDetail,S: BasicVertexDetail>(vertex: [T], color: [S])
+    {
         self.init(items: [.vertex(vertex), .color(color)] )
     }
     
-    public init<T: SCNVertexDetail,S: SCNVertexDetail, U: SCNVertexDetail>(vertex: [T], normal: [S], color: [U]) {
+    public init<T: BasicVertexDetail,S: BasicVertexDetail, U: BasicVertexDetail>(vertex: [T], normal: [S], color: [U])
+    {
         self.init(items: [.vertex(vertex), .normal(normal), .color(color)] )
     }
     
@@ -134,9 +145,9 @@ fileprivate protocol SemanticSource
     var count: Int { get }
 }
 
-extension Array: SemanticSource where Element: SCNVertexDetail { }
+extension Array: SemanticSource where Element: BasicVertexDetail { }
 
-extension TypedBuffer: SemanticSource where Element: MTLVertexDetail { }
+extension TypedBuffer: SemanticSource where Element: MetalVertexDetail { }
 
 extension Separated
 {
@@ -149,7 +160,8 @@ extension Separated
         var vertexCount: Int { source.count }
         let semantic: SCNGeometrySource.Semantic
         
-        init(semantic s: SCNGeometrySource.Semantic) {
+        init(semantic s: SCNGeometrySource.Semantic)
+        {
             semantic = s
         }
         
@@ -164,11 +176,12 @@ extension Separated
     
     // MARK: -
 
-    public class ArrayItem<T: SCNVertexDetail>: ArraySemantic
+    public class ArrayItem<T: BasicVertexDetail>: ArraySemantic
     {
         
         init(semantic s: SCNGeometrySource.Semantic,
-             array a: [T] ) {
+             array    a: [T] )
+        {
             array = a
             super.init(semantic: s)
         }
@@ -179,11 +192,12 @@ extension Separated
         
     }
 
-    public class BufferItem<T: MTLVertexDetail>: BufferSemantic
+    public class BufferItem<T: MetalVertexDetail>: BufferSemantic
     {
         
         init(semantic s: SCNGeometrySource.Semantic,
-             buffer b: TypedBuffer<T> ) {
+             buffer   b: TypedBuffer<T> )
+        {
             buffer = b
             super.init(semantic: s)
         }
@@ -228,43 +242,43 @@ extension Separated.Semantic
     }
 
     
-    static func vertex<T>(_ array: [T]) -> Separated.ArraySemantic where T: SCNVertexDetail
+    static func vertex<T>(_ array: [T]) -> Separated.ArraySemantic where T: BasicVertexDetail
     {
         Separated.ArrayItem(semantic: .vertex, array: array);
     }
     
-    static func normal<T>(_ array: [T]) -> Separated.ArraySemantic where T: SCNVertexDetail
+    static func normal<T>(_ array: [T]) -> Separated.ArraySemantic where T: BasicVertexDetail
     {
         Separated.ArrayItem(semantic: .normal, array: array);
     }
     
-    static func color<T>(_ array: [T]) -> Separated.ArraySemantic where T: SCNVertexDetail
+    static func color<T>(_ array: [T]) -> Separated.ArraySemantic where T: BasicVertexDetail
     {
         Separated.ArrayItem(semantic: .color, array: array);
     }
     
-    static func texcoord<T>(_ array: [T]) -> Separated.ArraySemantic where T: SCNVertexDetail
+    static func texcoord<T>(_ array: [T]) -> Separated.ArraySemantic where T: BasicVertexDetail
     {
         Separated.ArrayItem(semantic: .texcoord, array: array);
     }
 
     
-    static func vertex<T>(_ buffer: TypedBuffer<T>) -> Separated.BufferSemantic where T: MTLVertexDetail
+    static func vertex<T>(_ buffer: TypedBuffer<T>) -> Separated.BufferSemantic where T: MetalVertexDetail
     {
         Separated.BufferItem(semantic: .vertex, buffer: buffer);
     }
     
-    static func normal<T>(_ buffer: TypedBuffer<T>) -> Separated.BufferSemantic where T: MTLVertexDetail
+    static func normal<T>(_ buffer: TypedBuffer<T>) -> Separated.BufferSemantic where T: MetalVertexDetail
     {
         Separated.BufferItem(semantic: .normal, buffer: buffer);
     }
     
-    static func color<T>(_ buffer: TypedBuffer<T>) -> Separated.BufferSemantic where T: MTLVertexDetail
+    static func color<T>(_ buffer: TypedBuffer<T>) -> Separated.BufferSemantic where T: MetalVertexDetail
     {
         Separated.BufferItem(semantic: .color, buffer: buffer);
     }
     
-    static func texcoord<T>(_ buffer: TypedBuffer<T>) -> Separated.BufferSemantic where T: MTLVertexDetail
+    static func texcoord<T>(_ buffer: TypedBuffer<T>) -> Separated.BufferSemantic where T: MetalVertexDetail
     {
         Separated.BufferItem(semantic: .texcoord, buffer: buffer);
     }

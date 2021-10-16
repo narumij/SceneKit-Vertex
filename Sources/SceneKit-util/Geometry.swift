@@ -23,18 +23,21 @@ public protocol Geometry
 
 extension GeometrySource {
 
-    public func geometry(primitiveType type: PrimitiveType) -> SCNGeometry? {
+    public func geometry(primitiveType type: PrimitiveType) -> SCNGeometry?
+    {
         geometryElement(primitiveType: type)
             .map{ SCNGeometry( sources: geometrySources(),
                                elements: [$0] ) }
     }
 
-    public func geometry<T: FixedWidthInteger>(elements: [([T], SCNGeometryPrimitiveType)]) -> SCNGeometry {
+    public func geometry<T: FixedWidthInteger>(elements: [([T], SCNGeometryPrimitiveType)]) -> SCNGeometry
+    {
         SCNGeometry( sources: geometrySources(),
                      elements: elements.map{ $0.geometryElement(primitiveType: $1 ) })
     }
     
-    public func geometry<T: FixedWidthInteger>(elements: [(TypedBuffer<T>, SCNGeometryPrimitiveType)]) -> SCNGeometry {
+    public func geometry<T: FixedWidthInteger>(elements: [(TypedBuffer<T>, SCNGeometryPrimitiveType)]) -> SCNGeometry
+    {
         SCNGeometry( sources: geometrySources(),
                      elements: elements.map{ $0.geometryElement(primitiveType: $1) } )
     }
@@ -43,4 +46,5 @@ extension GeometrySource {
 
 
 extension Interleaved: Geometry { }
-extension Separated: Geometry { }
+extension Separated:   Geometry { }
+
