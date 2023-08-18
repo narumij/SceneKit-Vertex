@@ -7,49 +7,65 @@ import Foundation
 
 public struct InterleaveArrayMacro { }
 
-extension InterleaveArrayMacro: ExpressionMacro {
+extension InterleaveArrayMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
-        guard
-            let type = node.genericArgumentClause?.arguments.first
-        else {
-            return "SceneKit_Vertex.GeometryBuilder.Source(interleave: \(raw: node.argumentList.trimmedDescription))"
-        }
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
         
-        let args = node.argumentList
+        let genericType = node.genericArgumentClause?.arguments.first
         
-        return "SceneKit_Vertex.GeometryBuilder.Source(interleave: (\(raw: args.map{ $0.description }.joined())) as [\(raw: type.trimmedDescription)])"
+        let interleave = node.argumentList.first?.expression
+
+        let argumentList
+            = LabeledExprListSyntax(label: .interleave,
+                                    expression: typedArray(genericType, interleave))
+        
+        return geometryBuilderSource(argumentList)
     }
 }
 
 public struct InterleaveDataMacro { }
 
-extension InterleaveDataMacro: ExpressionMacro {
+extension InterleaveDataMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
         
-        guard let type = node.genericArgumentClause?.arguments.first
-        else {
+        guard let genericType = node.genericArgumentClause?.arguments.first else {
             throw SCNVertexMacroError.missingGenericType
         }
         
-        let args = node.argumentList
+        let argumentList
+            = LabeledExprListSyntax(label: .interleave,
+                                    expression: typedData(genericType, node.argumentList))
         
-        return "SceneKit_Vertex.GeometryBuilder.Source(interleave: TypedData<\(raw: type.trimmedDescription)>(\(raw: args.map{ $0.description }.joined())))"
+        return geometryBuilderSource(argumentList)
     }
 }
 
 public struct InterleaveBufferMacro { }
 
-extension InterleaveBufferMacro: ExpressionMacro {
+extension InterleaveBufferMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
+    
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
         
-        guard let type = node.genericArgumentClause?.arguments.first
-        else { throw SCNVertexMacroError.missingGenericType }
+        guard let genericType = node.genericArgumentClause?.arguments.first else {
+            throw SCNVertexMacroError.missingGenericType
+        }
         
-        let args = node.argumentList
+        let argumentList = 
+            LabeledExprListSyntax(label: .interleave,
+                                  expression: typedBuffer(genericType, node.argumentList))
         
-        return "SceneKit_Vertex.GeometryBuilder.Source(interleave: TypedBuffer<\(raw: type.trimmedDescription)>(\(raw: args.map{ $0.description }.joined())))"
+        return geometryBuilderSource(argumentList)
     }
 }
+

@@ -1,7 +1,7 @@
 import SceneKit
 import Metal
 
-// MARK: - 頂点定義向けマクロ
+// MARK: - インターリーブ頂点定義向けマクロ
 
 /// Interleaved vertex definition macro.
 ///
@@ -21,10 +21,10 @@ public macro SCNVertex() = #externalMacro(module: "SCNVertexMacros", type: "SCNV
 ///
 /// Usage:
 /// ```swift
-/// @SCNAttribute(semantic: .normal, vertexFormat: ushort3Normalized) var n: SIMD3<UInt16>
+/// @SCNAttribute(semantic: .normal, vertexFormat: .ushort3Normalized) var n: SIMD3<UInt16>
 /// ```
 @attached(peer)
-public macro SCNAttribute(semantic: SCNGeometrySource.Semantic, vertexFormat: MTLVertexFormat) = #externalMacro(module: "SCNVertexMacros", type: "AttributeMacro")
+public macro SCNAttribute(semantic: SCNGeometrySource.Semantic, vertexFormat: MTLVertexFormat) = #externalMacro(module: "SCNVertexMacros", type: "SCNVertexMacro")
 
 /// Interleaved vertex attribute macro.
 ///
@@ -35,7 +35,7 @@ public macro SCNAttribute(semantic: SCNGeometrySource.Semantic, vertexFormat: MT
 /// @SCNAttribute(semantic: .vertex) var p: SIMD3<Float>
 /// ```
 @attached(peer)
-public macro SCNAttribute(semantic: SCNGeometrySource.Semantic) = #externalMacro(module: "SCNVertexMacros", type: "AttributeMacro")
+public macro SCNAttribute(semantic: SCNGeometrySource.Semantic) = #externalMacro(module: "SCNVertexMacros", type: "SCNVertexMacro")
 
 /// Interleaved vertex attribute macro.
 ///
@@ -43,10 +43,10 @@ public macro SCNAttribute(semantic: SCNGeometrySource.Semantic) = #externalMacro
 ///
 /// Usage:
 /// ```swift
-/// @SCNAttribute(vertexFormat: ushort3Normalized) var normal: SIMD3<UInt16>
+/// @SCNAttribute(vertexFormat: .ushort3Normalized) var normal: SIMD3<UInt16>
 /// ```
 @attached(peer)
-public macro SCNAttribute(vertexFormat: MTLVertexFormat) = #externalMacro(module: "SCNVertexMacros", type: "AttributeMacro")
+public macro SCNAttribute(vertexFormat: MTLVertexFormat) = #externalMacro(module: "SCNVertexMacros", type: "SCNVertexMacro")
 
 /// Interleaved vertex exclusion macro.
 ///
@@ -55,9 +55,9 @@ public macro SCNAttribute(vertexFormat: MTLVertexFormat) = #externalMacro(module
 /// @SCNIgnore var info: AnyObject
 /// ```
 @attached(peer)
-public macro SCNIgnore() = #externalMacro(module: "SCNVertexMacros", type: "AttributeMacro")
+public macro SCNIgnore() = #externalMacro(module: "SCNVertexMacros", type: "SCNVertexMacro")
 
-// MARK: - 頂点のプロトコル適合向け
+// MARK: - インターリーブ頂点のプロトコル適合向け
 
 /// Usage
 /// ```swift

@@ -9,7 +9,6 @@ struct SCNVertexPlugin: CompilerPlugin {
         
         SCNVertexMacro.self,
         
-        AttributeMacro.self,
         InterleaveAttributeMacro.self,
 
         SourceArrayMacro.self,
