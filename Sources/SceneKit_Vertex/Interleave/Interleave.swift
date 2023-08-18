@@ -22,8 +22,8 @@ public protocol VertexFormat {
 
 public protocol Layout {
     
-    var offset:          Int? { get }
-    var stride:          Int  { get }
+    var offset: Int? { get }
+    var stride: Int  { get }
 }
 
 public protocol BasicAttributeProtocol: Semantic & Component & Layout { }

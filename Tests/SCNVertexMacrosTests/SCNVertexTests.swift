@@ -4,9 +4,9 @@ import XCTest
 @testable import SCNVertexMacros
 
 fileprivate let testMacros: [String: Macro.Type] = [
-    "MTLVertex": SCNVertexMacro.self,
-    "SCNAttribute": AttributeMacro.self,
-    "SCNIgnore": AttributeMacro.self,
+    "SCNVertex":    SCNVertexMacro.self,
+    "SCNAttribute": SCNVertexMacro.self,
+    "SCNIgnore":    SCNVertexMacro.self,
 ]
 
 final class SCNVertexTests: XCTestCase {
@@ -15,7 +15,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V {
+            @SCNVertex struct V {
                 var vertex: SIMD3<Float> // metal
             }
             """#,
@@ -27,7 +27,7 @@ final class SCNVertexTests: XCTestCase {
             extension V: SceneKit_Vertex.InterleavedVertex {
                 static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
                     [
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.vertex, semantic: .vertex, vertexFormat: nil )
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.vertex, semantic: .vertex, vertexFormat: nil)
                     ]
                 }
             }
@@ -39,7 +39,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V {
+            @SCNVertex struct V {
                 var position: SIMD3<Float16> // metal
             }
             """#,
@@ -51,7 +51,7 @@ final class SCNVertexTests: XCTestCase {
             extension V: SceneKit_Vertex.InterleavedVertex {
                 static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
                     [
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.position, semantic: .vertex, vertexFormat: nil )
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.position, semantic: .vertex, vertexFormat: nil)
                     ]
                 }
             }
@@ -65,7 +65,7 @@ final class SCNVertexTests: XCTestCase {
 
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V {
+            @SCNVertex struct V {
                 var normal: SIMD3<Float>
             }
             """#,
@@ -77,7 +77,7 @@ final class SCNVertexTests: XCTestCase {
             extension V: SceneKit_Vertex.InterleavedVertex {
                 static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
                     [
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.normal, semantic: .normal, vertexFormat: nil )
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.normal, semantic: .normal, vertexFormat: nil)
                     ]
                 }
             }
@@ -89,7 +89,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V {
+            @SCNVertex struct V {
                 var position: SIMD3<Float>
                 var normal: SIMD3<Float>
             }
@@ -103,8 +103,8 @@ final class SCNVertexTests: XCTestCase {
             extension V: SceneKit_Vertex.InterleavedVertex {
                 static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
                     [
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.position, semantic: .vertex, vertexFormat: nil ),
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.normal, semantic: .normal, vertexFormat: nil )
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.position, semantic: .vertex, vertexFormat: nil),
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.normal, semantic: .normal, vertexFormat: nil)
                     ]
                 }
             }
@@ -116,7 +116,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V {
+            @SCNVertex struct V {
                 var position: SIMD3<Float>
                 @SCNIgnore var something: NSObject
             }
@@ -130,7 +130,7 @@ final class SCNVertexTests: XCTestCase {
             extension V: SceneKit_Vertex.InterleavedVertex {
                 static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
                     [
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.position, semantic: .vertex, vertexFormat: nil )
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.position, semantic: .vertex, vertexFormat: nil)
                     ]
                 }
             }
@@ -142,7 +142,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V {
+            @SCNVertex struct V {
                 @SCNAttribute(semantic: .position, vertexFormat: .half3) var xyz: SIMD3<UInt16> // metal
                 @SCNAttribute(semantic: .normal) var ijk: SIMD3<UInt16> // metal
                 @SCNAttribute(semantic: .texcoord, vertexFormat: .char3) var stp: SIMD3<Int8> // metal
@@ -160,9 +160,9 @@ final class SCNVertexTests: XCTestCase {
             extension V: SceneKit_Vertex.InterleavedVertex {
                 static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
                     [
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.xyz, semantic: .vertex, vertexFormat: .half3 ),
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.ijk, semantic: .normal, vertexFormat: nil ),
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.stp, semantic: .texcoord, vertexFormat: .char3 )
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.xyz, semantic: .vertex, vertexFormat: .half3),
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.ijk, semantic: .normal, vertexFormat: nil),
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.stp, semantic: .texcoord, vertexFormat: .char3)
                     ]
                 }
             }
@@ -176,7 +176,7 @@ final class SCNVertexTests: XCTestCase {
 
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V { }
+            @SCNVertex struct V { }
             """#,
             expandedSource: #"""
             struct V { }
@@ -188,7 +188,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex enum V { }
+            @SCNVertex enum V { }
             """#,
             expandedSource: #"""
             enum V { }
@@ -201,7 +201,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex class V { }
+            @SCNVertex class V { }
             """#,
             expandedSource: #"""
             class V { }
@@ -214,7 +214,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V {
+            @SCNVertex struct V {
                 @SCNAttribute(vertexFormat: .format) var normal: SIMD3<Short>
             }
             """#,
@@ -226,7 +226,7 @@ final class SCNVertexTests: XCTestCase {
             extension V: SceneKit_Vertex.InterleavedVertex {
                 static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
                     [
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.normal, semantic: .normal, vertexFormat: .format )
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.normal, semantic: .normal, vertexFormat: .format)
                     ]
                 }
             }
@@ -238,7 +238,7 @@ final class SCNVertexTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            @MTLVertex struct V {
+            @SCNVertex struct V {
                 @SCNAttribute(semantic: .normal, vertexFormat: .format) var nameless: SIMD3<Short>
             }
             """#,
@@ -250,7 +250,89 @@ final class SCNVertexTests: XCTestCase {
             extension V: SceneKit_Vertex.InterleavedVertex {
                 static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
                     [
-                        SceneKit_Vertex.InterleaveAttribute( keyPath: \Self.nameless, semantic: .normal, vertexFormat: .format )
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.nameless, semantic: .normal, vertexFormat: .format)
+                    ]
+                }
+            }
+            """#,
+            macros: testMacros)
+    }
+
+    func testStaticその1() throws {
+        
+        assertMacroExpansion(
+            #"""
+            @SCNVertex struct V {
+                var position: SIMD3<Short>
+                static var normal: SIMD3<Float> = .zero
+            }
+            """#,
+            expandedSource: #"""
+            struct V {
+                var position: SIMD3<Short>
+                static var normal: SIMD3<Float> = .zero
+            }
+            
+            extension V: SceneKit_Vertex.InterleavedVertex {
+                static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
+                    [
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.position, semantic: .vertex, vertexFormat: nil)
+                    ]
+                }
+            }
+            """#,
+            macros: testMacros)
+    }
+
+    func test計算プロパティその1() throws {
+        
+        assertMacroExpansion(
+            #"""
+            @SCNVertex struct V {
+                var position: SIMD3<Short>
+                static var normal: SIMD3<Float> = .zero
+                var texcoord: SIMD2<Float> { get { [3,3] } }
+            }
+            """#,
+            expandedSource: #"""
+            struct V {
+                var position: SIMD3<Short>
+                static var normal: SIMD3<Float> = .zero
+                var texcoord: SIMD2<Float> { get { [3,3] } }
+            }
+            
+            extension V: SceneKit_Vertex.InterleavedVertex {
+                static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
+                    [
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.position, semantic: .vertex, vertexFormat: nil)
+                    ]
+                }
+            }
+            """#,
+            macros: testMacros)
+    }
+
+    func test計算プロパティその2() throws {
+        
+        assertMacroExpansion(
+            #"""
+            @SCNVertex struct V {
+                var position: SIMD3<Short>
+                static var normal: SIMD3<Float> = .zero
+                var texcoord: SIMD2<Float> { [3,3] }
+            }
+            """#,
+            expandedSource: #"""
+            struct V {
+                var position: SIMD3<Short>
+                static var normal: SIMD3<Float> = .zero
+                var texcoord: SIMD2<Float> { [3,3] }
+            }
+            
+            extension V: SceneKit_Vertex.InterleavedVertex {
+                static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
+                    [
+                        SceneKit_Vertex.InterleaveAttribute(keyPath: \Self.position, semantic: .vertex, vertexFormat: nil)
                     ]
                 }
             }

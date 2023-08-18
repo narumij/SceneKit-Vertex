@@ -207,6 +207,7 @@ final class SCNVertexTests: XCTestCase {
         let geometry1 = SCNGeometry {
             #position(positions)
             #polygon(elements)
+            #element<UInt32>(primitiveType: .polygon, [0,1,2,3])
         }
     }
     

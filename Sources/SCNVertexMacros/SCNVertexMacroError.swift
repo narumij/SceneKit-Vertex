@@ -7,6 +7,7 @@ enum SCNVertexMacroError: CustomStringConvertible, Error {
     case missingGenericType
     case notStructDeclSyntax
     
+    // TODO: エラーメッセージもう少し整える
     var description: String {
         switch self {
         case .vertexFormat:

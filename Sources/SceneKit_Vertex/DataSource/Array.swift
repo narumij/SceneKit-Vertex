@@ -78,10 +78,19 @@ extension Array where Element: InterleavedVertex {
 extension Array where Element: FixedWidthInteger {
     
     public func geometryElements(primitiveType: SCNGeometryPrimitiveType) -> SCNGeometryElement {
-        SCNGeometryElement(
-            indices: self,
-            primitiveType: primitiveType
-        )
+        
+        switch primitiveType {
+        case .polygon:
+            SCNGeometryElement(
+                indices: count == 0 ? [] : ([Element(count)] + self),
+                primitiveType: .polygon,
+                primitiveCount: count == 0 ? 0 : 1)
+        default:
+            SCNGeometryElement(
+                indices: self,
+                primitiveType: primitiveType
+            )
+        }
     }
 }
 

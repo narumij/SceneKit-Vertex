@@ -5,7 +5,18 @@ import SwiftSyntaxMacros
 
 public struct SCNVertexMacro { }
 
-extension SCNVertexMacro: ExtensionMacro {
+extension SCNVertexMacro: PeerMacro {
+    
+    public static func expansion(
+        of node: AttributeSyntax,
+        providingPeersOf declaration: some DeclSyntaxProtocol,
+        in context: some MacroExpansionContext
+    ) throws -> [DeclSyntax] {
+        []
+    }
+}
+
+extension SCNVertexMacro: ExtensionMacro, SCNVertexMacroCommon {
     
     public static func expansion(
         of node: AttributeSyntax,
@@ -19,114 +30,66 @@ extension SCNVertexMacro: ExtensionMacro {
             throw SCNVertexMacroError.notStructDeclSyntax
         }
         
-        let interleaveAttributes = declaration.memberBlock.members.compactMap{ interleaveAttribute(of: $0) }
-            .map{ $0.description }
+        let interleaveAttributes = declaration
+            .memberBlock
+            .members
+            .compactMap{
+                $0.decl.as(VariableDeclSyntax.self)?
+                    .interleaveAttribute?
+                    .with(\.leadingTrivia, .newline)
+            }
         
-        if interleaveAttributes.isEmpty {
-            return []
+        let ext = try ExtensionDeclSyntax("extension \(type): SceneKit_Vertex.InterleavedVertex") {
+            """
+            static var interleave: [SceneKit_Vertex.InterleaveAttribute] {
+            \(ArrayExprSyntax(expressions: interleaveAttributes)
+                .with(\.rightSquare.leadingTrivia, .newline))
+            }
+            """
         }
         
-        return [try .init("extension \(type): SceneKit_Vertex.InterleavedVertex") {
-            """
-            static var interleave: [SceneKit_Vertex.InterleaveAttribute] { [
-            \(raw: interleaveAttributes.joined(separator: ",\n") )
-            ] }
-            """
-        }]
+        return interleaveAttributes.isEmpty ? [] : [ext]
     }
+}
+
+fileprivate extension VariableDeclSyntax {
     
-    static func interleaveAttribute(of member: MemberBlockItemSyntax) -> SwiftSyntax.ExprSyntax? {
+    var interleaveAttribute: ExprSyntax? {
         
-        if ignore(of: member) {
+        guard !isIgnore, !isStatic, !isComputed, let keyPath, let semantic else {
             return nil
         }
         
-        guard
-            let keyPath = keyPath(of: member),
-            let semantic = semantic(of: member)
-        else {
-            return nil
+        let vertexFormat = vertexFormat ?? "nil"
+        
+        let argumentList = LabeledExprListSyntax {
+            LabeledExprSyntax(label: .keyPath, expression: keyPath)
+            LabeledExprSyntax(label: .semantic, expression: semantic)
+            LabeledExprSyntax(label: .vertexFormat, expression: vertexFormat)
         }
         
-        let vertexFormat = vertexFormat(of: member) ?? "nil"
-        
-        return """
-           SceneKit_Vertex.InterleaveAttribute( keyPath: \(keyPath), semantic: \(semantic), vertexFormat: \(vertexFormat) )
-           """
+        return SCNVertexMacro.interleaveAttribute(argumentList)
+    }
+    
+    var pattern: PatternSyntax? {
+        bindings.first?.pattern
+    }
+    
+    var isIgnore: Bool {
+        attributes.contains(attribute: .ignore)
+    }
+
+    var keyPath: ExprSyntax? {
+        pattern.map{ path in "\\Self.\(path)" }
+    }
+    
+    var semantic: ExprSyntax? {
+        guard let pattern else { return nil }
+        let semantic = first(attribute: .attribute, label: .semantic) ?? ".\(pattern)"
+        return "\(semantic.trimmedDescription == ".position" ? ".vertex" : semantic)"
+    }
+    
+    var vertexFormat: ExprSyntax? {
+        first(attribute: .attribute, label: .vertexFormat)
     }
 }
-
-func semantic(of member: MemberBlockItemSyntax) -> SwiftSyntax.ExprSyntax? {
-    
-    guard let member = member.decl.as(VariableDeclSyntax.self),
-          let path = member.bindings.first?.pattern.trimmedDescription
-    else {
-        return nil
-    }
-    
-    let semantic: String = member.attributes?
-        .compactMap{ $0.as(AttributeSyntax.self) }
-        .filter{ $0.attributeName.description == AttributeMacro.custom }
-        .compactMap {
-            $0.arguments?.as(LabeledExprListSyntax.self)?
-                .filter{ $0.label?.description == "semantic" }
-                .map{ $0.expression }
-                .first
-        }
-        .first?
-        .description
-    ?? "." + path
-    
-    return "\(raw: semantic == ".position" ? ".vertex" : semantic)"
-}
-
-func vertexFormat(of member: MemberBlockItemSyntax) -> SwiftSyntax.ExprSyntax? {
-    
-    guard let member = member.decl.as(VariableDeclSyntax.self),
-          let attributes = member.attributes
-    else {
-        return nil
-    }
-    
-    let format = attributes
-        .compactMap{ $0.as(AttributeSyntax.self) }
-        .filter{ $0.attributeName.description.trimmingCharacters(in: .whitespaces) == AttributeMacro.custom }
-        .compactMap {
-            $0.arguments?.as(LabeledExprListSyntax.self)?
-                .filter{ $0.label?.description == "vertexFormat" }
-                .map{ $0.expression }
-                .first
-        }
-        .first
-    
-    return format
-}
-
-func keyPath(of member: MemberBlockItemSyntax) -> SwiftSyntax.ExprSyntax? {
-    
-    guard let member = member.decl.as(VariableDeclSyntax.self),
-          let path = member.bindings.first?.pattern.trimmedDescription
-    else {
-        return nil
-    }
-    
-    return "\\Self.\(raw: path)"
-}
-
-func ignore(of member: MemberBlockItemSyntax) -> Bool {
-    
-    guard let member = member.decl.as(VariableDeclSyntax.self)
-    else {
-        return false
-    }
-    
-    let none = member.attributes?.compactMap{ $0.as(AttributeSyntax.self) }
-        .contains { $0.attributeName.description.trimmingCharacters(in: .whitespaces) == AttributeMacro.none }
-    
-    if let none, none {
-        return true
-    }
-    
-    return false
-}
-

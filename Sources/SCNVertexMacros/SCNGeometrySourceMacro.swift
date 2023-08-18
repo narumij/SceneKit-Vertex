@@ -6,27 +6,36 @@ import Foundation
 
 public struct SCNGeometrySourceVerticesMacro { }
 
-extension SCNGeometrySourceVerticesMacro: ExpressionMacro {
+extension SCNGeometrySourceVerticesMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion<Node, Context>(of node: Node, in context: Context) throws -> SwiftSyntax.ExprSyntax where Node : SwiftSyntax.FreestandingMacroExpansionSyntax, Context : SwiftSyntaxMacros.MacroExpansionContext {
-        "SCNGeometrySource(vertices: \(raw: node.argumentList.trimmedDescription))"
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
+        geometrySource(vertices: node.argumentList)
     }
 }
 
 public struct SCNGeometrySourceNormalsMacro { }
 
-extension SCNGeometrySourceNormalsMacro: ExpressionMacro {
+extension SCNGeometrySourceNormalsMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion<Node, Context>(of node: Node, in context: Context) throws -> SwiftSyntax.ExprSyntax where Node : SwiftSyntax.FreestandingMacroExpansionSyntax, Context : SwiftSyntaxMacros.MacroExpansionContext {
-        "SCNGeometrySource(normals: \(raw: node.argumentList.trimmedDescription))"
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
+        geometrySource(normals: node.argumentList)
     }
 }
 
 public struct SCNGeometrySourceTexcoordsMacro { }
 
-extension SCNGeometrySourceTexcoordsMacro: ExpressionMacro {
+extension SCNGeometrySourceTexcoordsMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion<Node, Context>(of node: Node, in context: Context) throws -> SwiftSyntax.ExprSyntax where Node : SwiftSyntax.FreestandingMacroExpansionSyntax, Context : SwiftSyntaxMacros.MacroExpansionContext {
-        "SCNGeometrySource(textureCoordinates: \(raw: node.argumentList.trimmedDescription))"
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
+        geometrySource(textureCoordinates: node.argumentList)
     }
 }

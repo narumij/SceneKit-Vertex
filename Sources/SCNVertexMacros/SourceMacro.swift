@@ -5,70 +5,69 @@ import SwiftSyntaxMacros
 
 public struct SourceArrayMacro { }
 
-extension SourceArrayMacro: ExpressionMacro {
+extension SourceArrayMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
         
-        let macro = node.macro.trimmedDescription
-        let semantic = macro == "position" ? "vertex" : macro
-
-        guard
-            let type = node.genericArgumentClause?.arguments.first
-        else {
-            return "SceneKit_Vertex.GeometryBuilder.Source(separate: \(raw: node.argumentList.trimmedDescription), semantic: .\(raw: semantic))"
+        let genericType = node.genericArgumentClause?.arguments.first
+        
+        let argumentList = LabeledExprListSyntax {
+            LabeledExprSyntax(label: .separate, expression: typedArray(genericType, "\(node.argumentList)"))
+            LabeledExprSyntax(label: .semantic, expression: node.semantic)
         }
 
-        return "SceneKit_Vertex.GeometryBuilder.Source(separate: (\(raw: node.argumentList.trimmedDescription)) as [\(type)], semantic: .\(raw: semantic))"
+        return geometryBuilderSource(argumentList)
     }
 }
 
 public struct SourceDataMacro { }
 
-extension SourceDataMacro: ExpressionMacro {
+extension SourceDataMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
         
-        let macro = node.macro.trimmedDescription
-        let semantic = macro == "position" ? "vertex" : macro
-
-        guard
-            let type = node.genericArgumentClause?.arguments.first
-        else {
-            return "SceneKit_Vertex.GeometryBuilder.Source(separate: \(raw: node.argumentList.trimmedDescription), semantic: .\(raw: semantic))"
+        guard let genericType = node.genericArgumentClause?.arguments.first else {
+            throw SCNVertexMacroError.missingGenericType
         }
         
-        return "SceneKit_Vertex.GeometryBuilder.Source(separate: TypedData<\(raw: type.trimmedDescription)>(\(raw: node.argumentList.trimmedDescription)), semantic: .\(raw: semantic))"
+        let argumentList = LabeledExprListSyntax {
+            LabeledExprSyntax(label: .separate, expression: typedData(genericType,node.argumentList))
+            LabeledExprSyntax(label: .semantic, expression: node.semantic)
+        }
+
+        return geometryBuilderSource(argumentList)
     }
 }
 
 public struct SourceBufferMacro { }
 
-extension SourceBufferMacro: ExpressionMacro {
+extension SourceBufferMacro: ExpressionMacro, SCNVertexMacroCommon {
     
-    public static func expansion(of node: some SwiftSyntax.FreestandingMacroExpansionSyntax, in context: some SwiftSyntaxMacros.MacroExpansionContext) throws -> SwiftSyntax.ExprSyntax {
+    public static func expansion(
+        of node:    some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
         
-        let macro = node.macro.trimmedDescription
-        let semantic = macro == "position" ? "vertex" : macro
-
-        guard
-            let type = node.genericArgumentClause?.arguments.first
-        else {
-            return "SceneKit_Vertex.GeometryBuilder.Source(separate: \(raw: node.argumentList.trimmedDescription), semantic: .\(raw: semantic))"
-        }
-        
-        guard
-            node.argumentList.contains(where: { $0.label?.description == "vertexFormat" }),
-            let vertexFormat = node.argumentList.last?.expression else {
-            
-            return "SceneKit_Vertex.GeometryBuilder.Source(separate: TypedBuffer<\(raw: type.trimmedDescription)>(\(raw: node.argumentList.trimmedDescription)), semantic: .\(raw: semantic))"
-        }
-        
-        var args = node.argumentList.filter{ $0.label?.description != "vertexFormat" }
-        
-        if let l = args.last, let i = args.index(of: l) {
-            args[i].trailingComma = nil
+        guard let genericType = node.genericArgumentClause?.arguments.first else {
+            throw SCNVertexMacroError.missingGenericType
         }
 
-        return "SceneKit_Vertex.GeometryBuilder.Source(separate: TypedBuffer<\(raw: type.trimmedDescription)>(\(raw: args.map{ $0.description }.joined())), semantic: .\(raw: semantic), vertexFormat: \(raw: vertexFormat))"
+        let (vertexFormat, separate) = node.firstAndRest(label: .vertexFormat)
+        
+        let argumentList = LabeledExprListSyntax {
+            LabeledExprSyntax(label: .separate, expression: typedBuffer(genericType,separate.commaRefresh()))
+            LabeledExprSyntax(label: .semantic, expression: node.semantic)
+            if let vertexFormat {
+                LabeledExprSyntax(label: .vertexFormat, expression: vertexFormat.expression)
+            }
+        }
+
+        return geometryBuilderSource(argumentList)
     }
 }
