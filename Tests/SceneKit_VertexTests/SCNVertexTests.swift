@@ -38,7 +38,7 @@ final class SCNVertexTests: XCTestCase {
 
         let geometry1: SCNGeometry = SCNGeometry() {
             #vertex<SIMD3<Float>>([[0,0,0], [1,1,1]])
-            #element<UInt32>(primitiveType: .line, [0, 1])
+            #elements<UInt32>(primitiveType: .line, [0, 1])
         }
         
         let geom = SCNGeometry(primitiveType: .triangleStrip) {
@@ -88,7 +88,7 @@ final class SCNVertexTests: XCTestCase {
 
         let geometry1: SCNGeometry = SCNGeometry() {
             #interleave(vertices)
-            #element<UInt32>(primitiveType: .line, [0,1])
+            #elements<UInt32>(primitiveType: .line, [0,1])
         }
         
 #if false
@@ -140,12 +140,12 @@ final class SCNVertexTests: XCTestCase {
         
         let geometry2: SCNGeometry = SCNGeometry {
             #interleave<MetalVertex>(buffer: vertexBuffer)
-            #element<Int32>(primitiveType: .line, [0,4,1,3,2])
+            #elements<Int32>(primitiveType: .line, [0,4,1,3,2])
         }
         
         let geometry3: SCNGeometry = SCNGeometry {
             #interleave<Vertex_N3FV3F>(buffer: vertexBuffer)
-            #element<Int32>(primitiveType: .line, buffer: vertexBuffer)
+            #elements<Int32>(primitiveType: .line, buffer: vertexBuffer)
         }
     }
     
@@ -207,7 +207,7 @@ final class SCNVertexTests: XCTestCase {
         let geometry1 = SCNGeometry {
             #position(positions)
             #polygon(elements)
-            #element<UInt32>(primitiveType: .polygon, [0,1,2,3])
+            #elements<UInt32>(primitiveType: .polygon, [0,1,2,3])
         }
     }
     
@@ -230,7 +230,7 @@ final class SCNVertexTests: XCTestCase {
         let geometry: SCNGeometry = SCNGeometry() {
             #vertex(vertex)
             #normal(normal)
-            #element<UInt32>(primitiveType: .triangles, buffer: elementBuffer)
+            #elements<UInt32>(primitiveType: .triangles, buffer: elementBuffer)
         }
         
 #if !os(macOS)

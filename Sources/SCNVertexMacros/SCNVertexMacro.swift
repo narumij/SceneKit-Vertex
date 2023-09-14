@@ -27,7 +27,7 @@ extension SCNVertexMacro: ExtensionMacro, SCNVertexMacroCommon {
     ) throws -> [ExtensionDeclSyntax] {
         
         guard let _ = declaration.as(StructDeclSyntax.self) else {
-            throw SCNVertexMacroError.notStructDeclSyntax
+            throw SCNVertexMacroError.requiresStruct
         }
         
         let interleaveAttributes = declaration

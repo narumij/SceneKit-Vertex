@@ -107,7 +107,7 @@ extension SCNVertexMacro {
         case vertexFormat
         case separate
         case interleave
-        case element
+        case elements
         case primitiveType
         case polygonElement
     }
@@ -196,7 +196,7 @@ extension SCNVertexMacroCommon {
     }
     
     static func geometryBuilderElement(_ args: LabeledExprListSyntax) -> ExprSyntax {
-        "SceneKit_Vertex.GeometryBuilder.Element(\(args))"
+        "SceneKit_Vertex.GeometryBuilder.Elements(\(args))"
     }
     
     static func interleaveAttribute(_ args: LabeledExprListSyntax) -> ExprSyntax {
