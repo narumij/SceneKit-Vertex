@@ -193,7 +193,7 @@ final class SCNVertexTests: XCTestCase {
             expandedSource: #"""
             enum V { }
             """#,
-            diagnostics: [.init(message: SCNVertexMacroError.notStructDeclSyntax.description, line: 1, column: 1)],
+            diagnostics: [.init(message: SCNVertexMacroError.requiresStruct.description, line: 1, column: 1)],
             macros: testMacros)
     }
 
@@ -206,7 +206,7 @@ final class SCNVertexTests: XCTestCase {
             expandedSource: #"""
             class V { }
             """#,
-            diagnostics: [.init(message: SCNVertexMacroError.notStructDeclSyntax.description, line: 1, column: 1)],
+            diagnostics: [.init(message: SCNVertexMacroError.requiresStruct.description, line: 1, column: 1)],
             macros: testMacros)
     }
 

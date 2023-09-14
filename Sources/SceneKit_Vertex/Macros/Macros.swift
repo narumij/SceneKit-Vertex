@@ -224,20 +224,20 @@ public macro interleave<T: InterleavedVertex>(buffer: MTLBuffer, count: Int? = n
 
 
 @freestanding(expression)
-public macro element<T: FixedWidthInteger>(primitiveType: SCNGeometryPrimitiveType, _ item: [T]) -> GeometryBuilder.Element = #externalMacro(module: "SCNVertexMacros", type: "ElementArrayMacro")
+public macro elements<T: FixedWidthInteger>(primitiveType: SCNGeometryPrimitiveType, _ item: [T]) -> GeometryBuilder.Elements = #externalMacro(module: "SCNVertexMacros", type: "ElementArrayMacro")
 
 @freestanding(expression)
-public macro element<T: FixedWidthInteger>(primitiveType: SCNGeometryPrimitiveType, data: Data, count: Int? = nil) -> GeometryBuilder.Element = #externalMacro(module: "SCNVertexMacros", type: "ElementDataMacro")
+public macro elements<T: FixedWidthInteger>(primitiveType: SCNGeometryPrimitiveType, data: Data, count: Int? = nil) -> GeometryBuilder.Elements = #externalMacro(module: "SCNVertexMacros", type: "ElementDataMacro")
 
 @freestanding(expression)
-public macro element<T: FixedWidthInteger>(primitiveType: SCNGeometryPrimitiveType, buffer: MTLBuffer, count: Int? = nil) -> GeometryBuilder.Element = #externalMacro(module: "SCNVertexMacros", type: "ElementBufferMacro")
+public macro elements<T: FixedWidthInteger>(primitiveType: SCNGeometryPrimitiveType, buffer: MTLBuffer, count: Int? = nil) -> GeometryBuilder.Elements = #externalMacro(module: "SCNVertexMacros", type: "ElementBufferMacro")
 
 // MARK: -
 
 // elementに統合しない
 
 @freestanding(expression)
-public macro polygon<T: FixedWidthInteger>(_ item: [[T]]) -> GeometryBuilder.Element = #externalMacro(module: "SCNVertexMacros", type: "PolygonMacro")
+public macro polygon<T: FixedWidthInteger>(_ item: [[T]]) -> GeometryBuilder.Elements = #externalMacro(module: "SCNVertexMacros", type: "PolygonMacro")
 
 // MARK: -
 

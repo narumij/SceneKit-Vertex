@@ -2,23 +2,18 @@ import Foundation
 
 enum SCNVertexMacroError: CustomStringConvertible, Error {
     
-    case vertexFormat
-    case missingLabel
-    case missingGenericType
-    case notStructDeclSyntax
+    case requiresArgument(String,SCNVertexMacro.Label)
+    case requiresGenericType(String)
+    case requiresStruct
     
-    // TODO: エラーメッセージもう少し整える
     var description: String {
         switch self {
-        case .vertexFormat:
-            // 属性引数vertexFormatは、@SCNVertexと一緒に利用できません
-            "Attribute argument vertexFormat cannot be used with @SCNVertex."
-        case .missingLabel:
-            "missingLabel"
-        case .missingGenericType: 
-            "missingGenericType"
-        case .notStructDeclSyntax:
-            "notStructDeclSyntax"
+        case .requiresArgument(let macro, let label):
+            "'#\(macro)' macro requires argument '\(label.rawValue):'."
+        case .requiresGenericType(let macro):
+            "'#\(macro)' macro requires generic type."
+        case .requiresStruct:
+            "'@SCNVertex' macro can only be applied to a struct."
         }
     }
 }

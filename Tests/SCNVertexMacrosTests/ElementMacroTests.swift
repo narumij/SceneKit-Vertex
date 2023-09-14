@@ -4,15 +4,15 @@ import XCTest
 import SCNVertexMacros
 
 fileprivate let arrayMacros: [String: Macro.Type] = [
-    "element": ElementArrayMacro.self,
+    "elements": ElementArrayMacro.self,
 ]
 
 fileprivate let dataMacro: [String: Macro.Type] = [
-    "element": ElementDataMacro.self,
+    "elements": ElementDataMacro.self,
 ]
 
 fileprivate let bufferMacros: [String: Macro.Type] = [
-    "element": ElementBufferMacro.self,
+    "elements": ElementBufferMacro.self,
 ]
 
 final class ElementMacroTests: XCTestCase {
@@ -21,10 +21,10 @@ final class ElementMacroTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            #element<UInt32>(primitiveType: .triangles, buffer: b)
+            #elements<UInt32>(primitiveType: .triangles, buffer: b)
             """#,
             expandedSource: #"""
-            SceneKit_Vertex.GeometryBuilder.Element(element: TypedBuffer<UInt32>(buffer: b), primitiveType: .triangles)
+            SceneKit_Vertex.GeometryBuilder.Elements(primitiveType: .triangles, elements: TypedBuffer<UInt32>(buffer: b))
             """#,
             macros: bufferMacros)
     }
@@ -33,10 +33,10 @@ final class ElementMacroTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            #element<UInt32>(primitiveType: .triangles, buffer: b, count: 3)
+            #elements<UInt32>(primitiveType: .triangles, buffer: b, count: 3)
             """#,
             expandedSource: #"""
-            SceneKit_Vertex.GeometryBuilder.Element(element: TypedBuffer<UInt32>(buffer: b, count: 3), primitiveType: .triangles)
+            SceneKit_Vertex.GeometryBuilder.Elements(primitiveType: .triangles, elements: TypedBuffer<UInt32>(buffer: b, count: 3))
             """#,
             macros: bufferMacros)
     }
@@ -45,11 +45,11 @@ final class ElementMacroTests: XCTestCase {
 
         assertMacroExpansion(
             #"""
-            #element(primitiveType: .triangles, buffer)
+            #elements(primitiveType: .triangles, buffer)
             """#,
             expandedSource:
             #"""
-            SceneKit_Vertex.GeometryBuilder.Element(element: buffer, primitiveType: .triangles)
+            SceneKit_Vertex.GeometryBuilder.Elements(primitiveType: .triangles, elements: buffer)
             """#,
             macros: arrayMacros)
     }
@@ -58,11 +58,11 @@ final class ElementMacroTests: XCTestCase {
 
         assertMacroExpansion(
             #"""
-            #element<UInt32>(primitiveType: .triangles, [0,1,2,3,4,5])
+            #elements<UInt32>(primitiveType: .triangles, [0,1,2,3,4,5])
             """#,
             expandedSource:
             #"""
-            SceneKit_Vertex.GeometryBuilder.Element(element: ([0, 1, 2, 3, 4, 5]) as [UInt32], primitiveType: .triangles)
+            SceneKit_Vertex.GeometryBuilder.Elements(primitiveType: .triangles, elements: ([0, 1, 2, 3, 4, 5]) as [UInt32])
             """#,
             macros: arrayMacros)
     }
@@ -71,10 +71,10 @@ final class ElementMacroTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            #element<UInt32>(primitiveType: .triangles, data: b)
+            #elements<UInt32>(primitiveType: .triangles, data: b)
             """#,
             expandedSource: #"""
-            SceneKit_Vertex.GeometryBuilder.Element(element: TypedData<UInt32>(data: b), primitiveType: .triangles)
+            SceneKit_Vertex.GeometryBuilder.Elements(primitiveType: .triangles, elements: TypedData<UInt32>(data: b))
             """#,
             macros: dataMacro)
     }
@@ -83,10 +83,10 @@ final class ElementMacroTests: XCTestCase {
         
         assertMacroExpansion(
             #"""
-            #element<UInt32>(primitiveType: .triangles, data: b, count: 3)
+            #elements<UInt32>(primitiveType: .triangles, data: b, count: 3)
             """#,
             expandedSource: #"""
-            SceneKit_Vertex.GeometryBuilder.Element(element: TypedData<UInt32>(data: b, count: 3), primitiveType: .triangles)
+            SceneKit_Vertex.GeometryBuilder.Elements(primitiveType: .triangles, elements: TypedData<UInt32>(data: b, count: 3))
             """#,
             macros: dataMacro)
     }

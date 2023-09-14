@@ -17,12 +17,12 @@ extension ElementArrayMacro: ExpressionMacro, SCNVertexMacroCommon {
         let (primitiveType, element) = node.firstAndRest(label: .primitiveType)
 
         guard let primitiveType else {
-            throw SCNVertexMacroError.missingLabel
+            throw SCNVertexMacroError.requiresArgument(node.macro.trimmedDescription, .primitiveType)
         }
         
         let argumentList = LabeledExprListSyntax {
-            LabeledExprSyntax(label: .element, expression: typedArray(genericType,element.first?.expression))
             LabeledExprSyntax(label: .primitiveType, expression: primitiveType.expression)
+            LabeledExprSyntax(label: .elements, expression: typedArray(genericType,element.first?.expression))
         }
 
         return geometryBuilderElement(argumentList)
@@ -39,18 +39,18 @@ extension ElementDataMacro: ExpressionMacro, SCNVertexMacroCommon {
     ) throws -> ExprSyntax {
         
         guard let genericType = node.genericArgumentClause?.arguments.first else {
-            throw SCNVertexMacroError.missingGenericType
+            throw SCNVertexMacroError.requiresGenericType(node.macro.trimmedDescription)
         }
         
         let (primitiveType, element) = node.firstAndRest(label: .primitiveType)
 
         guard let primitiveType else {
-            throw SCNVertexMacroError.missingLabel
+            throw SCNVertexMacroError.requiresArgument(node.macro.trimmedDescription, .primitiveType)
         }
 
         let argumentList = LabeledExprListSyntax {
-            LabeledExprSyntax(label: .element, expression: typedData(genericType,element.commaRefresh()))
             LabeledExprSyntax(label: .primitiveType, expression: primitiveType.expression)
+            LabeledExprSyntax(label: .elements, expression: typedData(genericType,element.commaRefresh()))
         }
 
         return geometryBuilderElement(argumentList)
@@ -67,18 +67,18 @@ extension ElementBufferMacro: ExpressionMacro, SCNVertexMacroCommon {
     ) throws -> ExprSyntax {
         
         guard let genericType = node.genericArgumentClause?.arguments.first else {
-            throw SCNVertexMacroError.missingGenericType
+            throw SCNVertexMacroError.requiresGenericType(node.macro.trimmedDescription)
         }
         
         let (primitiveType, element) = node.firstAndRest(label: .primitiveType)
         
         guard let primitiveType else {
-            throw SCNVertexMacroError.missingLabel
+            throw SCNVertexMacroError.requiresArgument(node.macro.trimmedDescription, .primitiveType)
         }
 
         let argumentList = LabeledExprListSyntax {
-            LabeledExprSyntax(label: .element, expression: typedBuffer(genericType,element.commaRefresh()))
             LabeledExprSyntax(label: .primitiveType, expression: primitiveType.expression)
+            LabeledExprSyntax(label: .elements, expression: typedBuffer(genericType,element.commaRefresh()))
         }
 
         return geometryBuilderElement(argumentList)

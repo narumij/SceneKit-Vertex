@@ -65,7 +65,7 @@ final class SmokeTests: XCTestCase {
         
         let geom = SCNGeometry {
             #position<SIMD3<Float>>(data:Data())
-            #element<UInt32>(primitiveType: .point, data:Data())
+            #elements<UInt32>(primitiveType: .point, data:Data())
         }
         
         XCTAssertNotNil(geom)
@@ -99,7 +99,7 @@ final class SmokeTests: XCTestCase {
         let geom = SCNGeometry {
             #position<SIMD3<Int16>>(buffer: buffer, vertexFormat: .short3Normalized)
             #normal<SIMD3<Int16>>(buffer: buffer)
-            #element<UInt32>(primitiveType: .point, buffer: buffer)
+            #elements<UInt32>(primitiveType: .point, buffer: buffer)
         }
         
         XCTAssertNotNil(geom)

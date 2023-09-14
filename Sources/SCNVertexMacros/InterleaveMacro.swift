@@ -36,7 +36,7 @@ extension InterleaveDataMacro: ExpressionMacro, SCNVertexMacroCommon {
     ) throws -> ExprSyntax {
         
         guard let genericType = node.genericArgumentClause?.arguments.first else {
-            throw SCNVertexMacroError.missingGenericType
+            throw SCNVertexMacroError.requiresGenericType(node.macro.trimmedDescription)
         }
         
         let argumentList
@@ -58,7 +58,7 @@ extension InterleaveBufferMacro: ExpressionMacro, SCNVertexMacroCommon {
     ) throws -> ExprSyntax {
         
         guard let genericType = node.genericArgumentClause?.arguments.first else {
-            throw SCNVertexMacroError.missingGenericType
+            throw SCNVertexMacroError.requiresGenericType(node.macro.trimmedDescription)
         }
         
         let argumentList = 

@@ -155,10 +155,10 @@ final class SceneKit_VertexTests: XCTestCase {
         #interleave<vertex_v3us>(buffer: buffer)
         #interleave<vertex_v3us>(buffer: buffer, count: 3)
 
-        #element<Int32>(primitiveType: .line, [0,4,1,3,2])
+        #elements<Int32>(primitiveType: .line, [0,4,1,3,2])
 
-        #element<UInt32>(primitiveType: .triangles, buffer: buffer)
-        #element<UInt32>(primitiveType: .triangles, buffer: buffer, count: 3)
+        #elements<UInt32>(primitiveType: .triangles, buffer: buffer)
+        #elements<UInt32>(primitiveType: .triangles, buffer: buffer, count: 3)
     }
     
     func testAttrbInfo() throws {

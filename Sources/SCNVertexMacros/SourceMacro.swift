@@ -33,7 +33,7 @@ extension SourceDataMacro: ExpressionMacro, SCNVertexMacroCommon {
     ) throws -> ExprSyntax {
         
         guard let genericType = node.genericArgumentClause?.arguments.first else {
-            throw SCNVertexMacroError.missingGenericType
+            throw SCNVertexMacroError.requiresGenericType(node.macro.trimmedDescription)
         }
         
         let argumentList = LabeledExprListSyntax {
@@ -55,7 +55,7 @@ extension SourceBufferMacro: ExpressionMacro, SCNVertexMacroCommon {
     ) throws -> ExprSyntax {
         
         guard let genericType = node.genericArgumentClause?.arguments.first else {
-            throw SCNVertexMacroError.missingGenericType
+            throw SCNVertexMacroError.requiresGenericType(node.macro.trimmedDescription)
         }
 
         let (vertexFormat, separate) = node.firstAndRest(label: .vertexFormat)

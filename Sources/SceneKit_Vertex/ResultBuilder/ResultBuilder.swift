@@ -87,17 +87,17 @@ public struct SourceItem {
 
 public struct ElementItem {
 
-    public init(element: ElementArrayProvider, primitiveType: SCNGeometryPrimitiveType) {
-        self.elements = [element.geometryElements(primitiveType: primitiveType)]
+    public init(primitiveType: SCNGeometryPrimitiveType, elements: ElementArrayProvider) {
+        self.elements = [elements.geometryElements(primitiveType: primitiveType)]
     }
     
-    public init(element: ElementDataProvider, primitiveType: SCNGeometryPrimitiveType) {
-        self.elements = [element.geometryElements(primitiveType: primitiveType)]
+    public init(primitiveType: SCNGeometryPrimitiveType, elements: ElementDataProvider) {
+        self.elements = [elements.geometryElements(primitiveType: primitiveType)]
     }
 
     @available(macOS 12.0, iOS 14.0, tvOS 14.0, *)
-    public init(element: ElementBufferProvider, primitiveType: SCNGeometryPrimitiveType) {
-        self.elements = [element.geometryElements(primitiveType: primitiveType)]
+    public init(primitiveType: SCNGeometryPrimitiveType, elements: ElementBufferProvider) {
+        self.elements = [elements.geometryElements(primitiveType: primitiveType)]
     }
 
     public init(polygonElement: PolygonArrayProvider) {
@@ -120,9 +120,9 @@ public struct ElementItem {
 @resultBuilder
 public enum GeometryBuilder {
     public typealias Source = SourceItem
-    public typealias Element = ElementItem
+    public typealias Elements = ElementItem
     case sources(Source)
-    case element(Element)
+    case elements(Elements)
 }
 
 extension GeometryBuilder {
@@ -130,13 +130,13 @@ extension GeometryBuilder {
     public var geometrySources: [SCNGeometrySource] {
         switch self {
         case .sources(let s): s.sources
-        case .element: []
+        case .elements: []
         }
     }
 
     public var geometryElements: [SCNGeometryElement] {
         switch self {
-        case .element(let e): e.elements
+        case .elements(let e): e.elements
         case .sources: []
         }
     }
@@ -163,15 +163,15 @@ public extension GeometryBuilder {
     }
     
     static func buildExpression(_ expression: SCNGeometryElement) -> [GeometryBuilder] {
-        [.element(Element(expression))]
+        [.elements(Elements(expression))]
     }
 
     static func buildExpression(_ expression: Source) -> [GeometryBuilder] {
         [.sources(expression)]
     }
     
-    static func buildExpression(_ expression: Element) -> [GeometryBuilder] {
-        [.element(expression)]
+    static func buildExpression(_ expression: Elements) -> [GeometryBuilder] {
+        [.elements(expression)]
     }
 }
 

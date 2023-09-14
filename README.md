@@ -155,7 +155,7 @@ Here are the macros for geometry-related purposes:
 
 ```swift
 #interleave
-#element
+#elements
 #polygon
 
 #vertex
@@ -206,7 +206,7 @@ let geometry0: SCNGeometry = SCNGeometry(primitiveType: .line) {
 // Generating geometry from position vectors and vertex indices
 let geometry1: SCNGeometry = SCNGeometry() {
     #vertex<SIMD3<Float>>([[0,0,0], [1,1,1]])
-    #element<UInt32>(primitiveType: .line, [0, 1])
+    #elements<UInt32>(primitiveType: .line, [0, 1])
 }
 ```
 
@@ -240,7 +240,7 @@ let geometry1: SCNGeometry = SCNGeometry() {
     // Bulk source specification
     #interleave(vertices)
     // Index specification
-    #element<UInt32>(primitiveType: .line, [0,1])
+    #elements<UInt32>(primitiveType: .line, [0,1])
 }
 ```
 
@@ -283,7 +283,7 @@ let geometry1: SCNGeometry = SCNGeometry(primitiveType: .triangles) {
 
 let geometry2: SCNGeometry = SCNGeometry {
     #interleave<MetalVertex>(buffer: vertexBuffer)
-    #element<Int32>(primitiveType: .line, [0,4,1,3,2])
+    #elements<Int32>(primitiveType: .line, [0,4,1,3,2])
 }
 
 // When defining vertices on the Swift side, you can use macros for additional information and apply protocols.
@@ -294,7 +294,7 @@ let geometry2: SCNGeometry = SCNGeometry {
 
 let geometry3: SCNGeometry = SCNGeometry {
     #interleave<Vertex_N3FV3H>(buffer: vertexBuffer)
-    #element<Int32>(primitiveType: .line, buffer: vertexBuffer)
+    #elements<Int32>(primitiveType: .line, buffer: elementBuffer)
 }
 ```
 
@@ -336,5 +336,4 @@ In protocol extension KeyPaths, it wasn't possible to take stride or offset. Mac
 ## Requirements
 
 - Xcode 15
-- macOS 10.15 or newer, iOS 13 or newer, etc...
 
